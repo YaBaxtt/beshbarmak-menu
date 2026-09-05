@@ -1,0 +1,248 @@
+{% load static menu_extras %}
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#24170f">
+  <title>{{ restaurant.restaurant_name }} — Milliy taomlar menyusi</title>
+  <meta name="description" content="{{ restaurant.restaurant_name }} raqamli menyusi — milliy taomlar, narxlar va restoran ma’lumotlari.">
+  <meta property="og:title" content="{{ restaurant.restaurant_name }} — Digital menu">
+  <meta property="og:description" content="Milliy taomlar • Issiq • Mazali">
+  <meta property="og:type" content="website">
+  {% if restaurant.hero_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ restaurant.hero_image.url }}">{% endif %}
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260905-4">
+  <script src="{% static 'js/menu.js' %}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#menu-content">Menyuga o‘tish / К меню</a>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <main class="app-shell" id="menu-content">
+    <section class="hero" {% if restaurant.hero_image %}style="--hero-image: url('{{ restaurant.hero_image.url }}')"{% else %}style="--hero-image: url('{% static 'images/demo/hero.webp' %}')"{% endif %}>
+      <div class="hero-grain" aria-hidden="true"></div>
+      <header class="hero-topbar">
+        <div class="language-switch" role="group" aria-label="Til / Язык">
+          <button type="button" class="lang-button active" data-lang="uz" aria-pressed="true">UZ</button>
+          <span></span>
+          <button type="button" class="lang-button" data-lang="ru" aria-pressed="false">RU</button>
+        </div>
+      </header>
+
+      <div class="hero-content">
+        {% if restaurant.logo %}
+          <img class="restaurant-logo" src="{{ restaurant.logo.url }}" alt="{{ restaurant.restaurant_name }}" width="120" height="120">
+        {% else %}
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M32 6 38 23l18 2-14 11 5 18-15-10-15 10 5-18L8 25l18-2Z"/><circle cx="32" cy="32" r="7"/></svg>
+          </div>
+        {% endif %}
+        <p class="eyebrow" data-i18n data-uz="Milliy oshxona" data-ru="Национальная кухня">Milliy oshxona</p>
+        <h1>{{ restaurant.restaurant_name }}</h1>
+        <p class="hero-subtitle" data-i18n data-uz="{{ restaurant.subtitle_uz }}" data-ru="{{ restaurant.subtitle_ru }}">{{ restaurant.subtitle_uz }}</p>
+        <a class="hero-menu-link" href="#dishes">
+          <span data-i18n data-uz="Menyuni ko‘rish" data-ru="Смотреть меню">Menyuni ko‘rish</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <section class="quick-actions" aria-label="Tezkor havolalar / Быстрые ссылки">
+      <a class="action-button menu-action" href="#dishes">
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v5c0 2 1 3 3 3s3-1 3-3V3M7 11v10M16 3c3 2 4 5 4 9h-4v9M16 3v18"/></svg>
+        </span>
+        <span>Menu</span>
+      </a>
+      <a class="action-button telegram-action" href="{{ restaurant.telegram_url|default:'#' }}" target="_blank" rel="noopener">
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 4-3 16-6-5-3 3 1-5 8-6-10 5-5-2Z"/></svg>
+        </span>
+        <span>Telegram</span>
+      </a>
+      <a class="action-button instagram-action" href="{{ restaurant.instagram_url|default:'#' }}" target="_blank" rel="noopener">
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <span>Instagram</span>
+      </a>
+    </section>
+
+    <section class="info-strip" aria-label="Restoran ma’lumotlari / Информация о ресторане">
+      <a href="{{ restaurant.location_url|default:'#' }}" target="_blank" rel="noopener" class="info-item">
+        <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+        <span><small data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</small><b data-i18n data-uz="{{ restaurant.location_text_uz }}" data-ru="{{ restaurant.location_text_ru }}">{{ restaurant.location_text_uz }}</b></span>
+      </a>
+      <a href="tel:{{ restaurant.phone|cut:' '|cut:'('|cut:')'|cut:'-' }}" class="info-item">
+        <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3H4a1 1 0 0 0-1 1c0 9 8 17 17 17a1 1 0 0 0 1-1v-3l-5-2-1.5 3c-3.8-1.6-6.9-4.7-8.5-8.5L9 8Z"/></svg></span>
+        <span><small data-i18n data-uz="Telefon" data-ru="Телефон">Telefon</small><b>{{ restaurant.phone }}</b></span>
+      </a>
+      <div class="info-item">
+        <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+        <span><small data-i18n data-uz="Ish vaqti" data-ru="Время работы">Ish vaqti</small><b data-i18n data-uz="{{ restaurant.working_hours_uz }}" data-ru="{{ restaurant.working_hours_ru }}">{{ restaurant.working_hours_uz }}</b></span>
+      </div>
+    </section>
+
+    <div class="content-wrap">
+      <section class="intro-row reveal">
+        <div>
+          <p class="section-kicker" data-i18n data-uz="Bizning taomlar" data-ru="Наши блюда">Bizning taomlar</p>
+          <h2 data-i18n data-uz="Ko‘nglingiz tusagan ta’m" data-ru="Вкус, который вы искали">Ko‘nglingiz tusagan ta’m</h2>
+        </div>
+        <span class="dish-count">{{ dishes|length }} <span data-i18n data-uz="taom" data-ru="блюд">ta taom</span></span>
+      </section>
+
+      <label class="search-box" for="dish-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="dish-search" type="search" autocomplete="off" placeholder="Taom qidirish..." data-placeholder-uz="Taom qidirish..." data-placeholder-ru="Найти блюдо...">
+        <button class="search-clear" type="button" aria-label="Tozalash / Очистить"><svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
+      </label>
+
+      <nav class="category-scroller" aria-label="Kategoriyalar / Категории">
+        <button class="category-chip active" type="button" data-category="all">
+          <span> 𓎩  </span><b data-i18n data-uz="Barchasi" data-ru="Все">Barchasi</b>
+        </button>
+        {% for category in categories %}
+          <button class="category-chip" type="button" data-category="{{ category.slug }}">
+            <span>{{ category.icon|default:"•" }}</span><b data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</b>
+          </button>
+        {% endfor %}
+      </nav>
+
+      {% if popular_dishes %}
+      <section class="popular-section reveal" id="popular-section">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker" data-i18n data-uz="Mehmonlar tanlovi" data-ru="Выбор гостей">Mehmonlar tanlovi</p>
+            <h2><span class="flame">🔥</span> <span data-i18n data-uz="Ko‘p tanlanadi" data-ru="Популярное">Ko‘p tanlanadi</span></h2>
+          </div>
+          <div class="swipe-hint"><span data-i18n data-uz="Surish" data-ru="Листайте">Surish</span> <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>
+        </div>
+        <div class="popular-scroller">
+          {% for dish in popular_dishes %}
+          <button class="popular-card dish-trigger" type="button" data-dish-id="{{ dish.pk }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ dish.category.name_uz }} {{ dish.category.name_ru }}" data-category="{{ dish.category.slug }}">
+            {% with cover=dish.images.first %}
+            <div class="popular-image">
+              {% if cover %}<img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="420" height="300">{% else %}<div class="image-placeholder">✦</div>{% endif %}
+              {% if dish.is_recommended %}<span class="photo-badge" data-i18n data-uz="Tavsiya" data-ru="Советуем">Tavsiya</span>{% endif %}
+            </div>
+            {% endwith %}
+            <div class="popular-copy">
+              <span class="popular-name" data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</span>
+              <span class="popular-price">{{ dish.price|price }} <small>so‘m</small></span>
+            </div>
+          </button>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section id="dishes" class="all-menu">
+        {% for category in categories %}
+          <div class="menu-section reveal" data-menu-section="{{ category.slug }}">
+            <div class="section-heading menu-heading">
+              <div>
+                <span class="category-overline">{{ category.icon }}</span>
+                <h2 data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</h2>
+              </div>
+              <span class="section-count">{{ category.dishes.count|stringformat:"02d" }}</span>
+            </div>
+            <div class="dish-grid">
+              {% for dish in dishes %}
+                {% if dish.category_id == category.id %}
+                <button class="dish-card dish-trigger{% if not dish.is_available %} unavailable{% endif %}" type="button" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
+                  {% with cover=dish.images.first %}
+                  <div class="dish-image">
+                    {% if cover %}
+                      <img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="360" height="280">
+                    {% else %}
+                      <div class="image-placeholder"><span>✦</span><small data-i18n data-uz="Rasm tez orada" data-ru="Фото скоро">Rasm tez orada</small></div>
+                    {% endif %}
+                    <div class="card-badges">
+                      {% if dish.is_popular %}<span class="mini-badge hot">🔥</span>{% endif %}
+                      {% if dish.is_recommended %}<span class="mini-badge recommended">★</span>{% endif %}
+                    </div>
+                    {% if dish.is_available %}
+                      <span class="available-status" data-i18n data-uz="Mavjud" data-ru="В наличии">Mavjud</span>
+                    {% else %}
+                      <span class="sold-out" data-i18n data-uz="Hozir mavjud emas" data-ru="Сейчас нет в наличии">Hozir mavjud emas</span>
+                    {% endif %}
+                  </div>
+                  {% endwith %}
+                  <div class="dish-copy">
+                    <h3 data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</h3>
+                    <p data-i18n data-uz="{{ dish.description_uz }}" data-ru="{{ dish.description_ru }}">{{ dish.description_uz }}</p>
+                    <div class="dish-meta">
+                      <span class="price">{{ dish.price|price }} <small>so‘m</small></span>
+                      <span class="card-arrow"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span>
+                    </div>
+                  </div>
+                </button>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+
+      <div class="empty-state" hidden>
+        <span>⌕</span>
+        <h2 data-i18n data-uz="Hech narsa topilmadi" data-ru="Ничего не найдено">Hech narsa topilmadi</h2>
+        <p data-i18n data-uz="Boshqa nom bilan qidirib ko‘ring." data-ru="Попробуйте изменить запрос.">Boshqa nom bilan qidirib ko‘ring.</p>
+        <button type="button" data-i18n data-uz="Qidiruvni tozalash" data-ru="Очистить поиск">Qidiruvni tozalash</button>
+      </div>
+
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-mark">BH</div>
+      <h2>{{ restaurant.restaurant_name }}</h2>
+      <p data-i18n data-uz="{{ restaurant.subtitle_uz }}" data-ru="{{ restaurant.subtitle_ru }}">{{ restaurant.subtitle_uz }}</p>
+      <div class="footer-links">
+        <a href="{{ restaurant.location_url|default:'#' }}" target="_blank" rel="noopener" data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</a>
+        <a href="tel:{{ restaurant.phone|cut:' ' }}">{{ restaurant.phone }}</a>
+        <a href="{{ restaurant.telegram_url|default:'#' }}" target="_blank" rel="noopener">Telegram</a>
+        <a href="{{ restaurant.instagram_url|default:'#' }}" target="_blank" rel="noopener">Instagram</a>
+        <span class="footer-hours" data-i18n data-uz="{{ restaurant.working_hours_uz }}" data-ru="{{ restaurant.working_hours_ru }}">{{ restaurant.working_hours_uz }}</span>
+      </div>
+      <div class="footer-rule"></div>
+      <div class="footer-bottom"><span>© 2026 {{ restaurant.restaurant_name }}</span><span>Digital menu</span></div>
+    </footer>
+  </main>
+
+  <div class="sheet-overlay" aria-hidden="true"></div>
+  <aside class="dish-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <button class="sheet-close" type="button" aria-label="Yopish / Закрыть"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <div class="sheet-scroll">
+      <div class="sheet-gallery" tabindex="0"></div>
+      <div class="gallery-dots" aria-hidden="true"></div>
+      <div class="sheet-content">
+        <p class="sheet-category"></p>
+        <h2 id="sheet-title"></h2>
+        <div class="sheet-price-row">
+          <span class="sheet-price"></span>
+          <span class="sheet-status"></span>
+        </div>
+        <div class="sheet-divider"></div>
+        <div class="sheet-details">
+          <div class="portion-block">
+            <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span>
+            <div><small data-i18n data-uz="Porsiya" data-ru="Порция">Porsiya</small><b class="sheet-weight">—</b></div>
+          </div>
+          <div class="tag-block"><span>✦</span><b data-i18n data-uz="Yangi tayyorlanadi" data-ru="Готовим свежим">Yangi tayyorlanadi</b></div>
+        </div>
+        <h3 data-i18n data-uz="Taom haqida" data-ru="О блюде">Taom haqida</h3>
+        <p class="sheet-description"></p>
+      </div>
+    </div>
+  </aside>
+
+  {{ dish_data|json_script:"dish-data" }}
+</body>
+</html>

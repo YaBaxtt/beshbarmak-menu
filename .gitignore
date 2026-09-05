@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.DS_Store
+staticfiles/
+.asset-source/
+artifacts/
+media/dishes/
+media/restaurant/
