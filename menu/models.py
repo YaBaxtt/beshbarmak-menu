@@ -114,7 +114,11 @@ class RestaurantSettings(models.Model):
     working_hours_ru = models.CharField("Время работы (RU)", max_length=120, default="Ежедневно, 10:00–23:00")
     location_text_uz = models.CharField("Manzil (UZ)", max_length=180, default="Yangiyo‘l")
     location_text_ru = models.CharField("Адрес (RU)", max_length=180, default="Янгиюль")
-    location_url = models.URLField("Xarita havolasi / ссылка на карту", blank=True)
+    location_url = models.URLField(
+    "Xarita havolasi / ссылка на карту",
+    max_length=1000,
+    blank=True,
+    )
     telegram_url = models.URLField("Telegram", blank=True)
     instagram_url = models.URLField("Instagram", blank=True)
     hero_image = models.ImageField("Asosiy rasm / фото обложки", upload_to="restaurant/", blank=True)
