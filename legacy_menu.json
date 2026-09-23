@@ -1,0 +1,916 @@
+[
+{
+  "model": "menu.category",
+  "pk": 1,
+  "fields": {
+    "name_uz": "Asosiy taomlar",
+    "name_ru": "Основные блюда",
+    "icon": "🥩",
+    "slug": "asosiy",
+    "sort_order": 10,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 2,
+  "fields": {
+    "name_uz": "Sho‘rvalar",
+    "name_ru": "Супы",
+    "icon": "🍲",
+    "slug": "shorvalar",
+    "sort_order": 20,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 3,
+  "fields": {
+    "name_uz": "Salatlar",
+    "name_ru": "Салаты",
+    "icon": "🥗",
+    "slug": "salatlar",
+    "sort_order": 40,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 4,
+  "fields": {
+    "name_uz": "Ichimliklar",
+    "name_ru": "Напитки",
+    "icon": "🥤",
+    "slug": "ichimliklar",
+    "sort_order": 50,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 5,
+  "fields": {
+    "name_uz": "Desertlar",
+    "name_ru": "Десерты",
+    "icon": "🍰",
+    "slug": "desertlar",
+    "sort_order": 60,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 6,
+  "fields": {
+    "name_uz": "SHORVA",
+    "name_ru": "СУП",
+    "icon": "baxt",
+    "slug": "shorva",
+    "sort_order": 5,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.category",
+  "pk": 7,
+  "fields": {
+    "name_uz": "Baliq taomlari",
+    "name_ru": "Рыбные блюда",
+    "icon": "🐟",
+    "slug": "baliqlar",
+    "sort_order": 30,
+    "is_active": true
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name_uz": "Beshbarmak",
+    "name_ru": "Бешбармак",
+    "description_uz": "Mayin go‘sht, uy xamiri, piyoz va xushbo‘y sho‘rva. Dasturxonning bosh taomi.",
+    "description_ru": "Нежное мясо, домашняя лапша, лук и ароматный бульон. Главное блюдо стола.",
+    "price": 75000,
+    "weight": "450 g",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": true,
+    "sort_order": 1,
+    "created_at": "2026-09-04T17:39:07.278Z",
+    "updated_at": "2026-09-23T13:17:00.003Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "name_uz": "Qazi assorti",
+    "name_ru": "Ассорти казы",
+    "description_uz": "An’anaviy ot go‘shti qazisi, ko‘kat va piyoz bilan.",
+    "description_ru": "Традиционная конская колбаса с зеленью и луком.",
+    "price": 72000,
+    "weight": "220 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": true,
+    "sort_order": 3,
+    "created_at": "2026-09-04T17:39:07.711Z",
+    "updated_at": "2026-09-23T13:17:00.283Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 3,
+  "fields": {
+    "category": 1,
+    "name_uz": "Manti",
+    "name_ru": "Манты",
+    "description_uz": "Bug‘da pishirilgan yupqa xamir, shirali go‘sht va piyoz.",
+    "description_ru": "Тонкое тесто на пару с сочным мясом и луком.",
+    "price": 49000,
+    "weight": "5 dona",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 4,
+    "created_at": "2026-09-04T17:39:08.120Z",
+    "updated_at": "2026-09-23T13:17:00.431Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 4,
+  "fields": {
+    "category": 1,
+    "name_uz": "Qovurma lag‘mon",
+    "name_ru": "Жареный лагман",
+    "description_uz": "Qo‘lda cho‘zilgan lag‘mon, mol go‘shti va mavsumiy sabzavotlar.",
+    "description_ru": "Домашняя лапша, говядина и сезонные овощи.",
+    "price": 54000,
+    "weight": "380 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": true,
+    "sort_order": 5,
+    "created_at": "2026-09-04T17:39:08.540Z",
+    "updated_at": "2026-09-23T13:17:00.636Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 5,
+  "fields": {
+    "category": 2,
+    "name_uz": "Go‘shtli sho‘rva",
+    "name_ru": "Мясная шурпа",
+    "description_uz": "Suyakli go‘sht, kartoshka, sabzi va tiniq bulyon.",
+    "description_ru": "Мясо на кости, картофель, морковь и прозрачный бульон.",
+    "price": 39000,
+    "weight": "350 ml",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": true,
+    "sort_order": 8,
+    "created_at": "2026-09-04T17:39:08.945Z",
+    "updated_at": "2026-09-23T13:17:01.192Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 6,
+  "fields": {
+    "category": 2,
+    "name_uz": "Mastava",
+    "name_ru": "Мастава",
+    "description_uz": "Guruch, mayda go‘sht va sabzavotlardan quyuq sho‘rva.",
+    "description_ru": "Наваристый суп с рисом, мясом и овощами.",
+    "price": 35000,
+    "weight": "350 ml",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 9,
+    "created_at": "2026-09-04T17:39:09.387Z",
+    "updated_at": "2026-09-23T13:17:01.378Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 7,
+  "fields": {
+    "category": 2,
+    "name_uz": "Chuchvara",
+    "name_ru": "Чучвара",
+    "description_uz": "Mayda chuchvara va ko‘katli tiniq bulyon.",
+    "description_ru": "Маленькие пельмени в прозрачном бульоне с зеленью.",
+    "price": 37000,
+    "weight": "350 ml",
+    "is_available": false,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 10,
+    "created_at": "2026-09-04T17:39:09.838Z",
+    "updated_at": "2026-09-23T13:17:01.517Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 8,
+  "fields": {
+    "category": 3,
+    "name_uz": "Achchiq-chuchuk",
+    "name_ru": "Ачу-чук",
+    "description_uz": "Pomidor, piyoz, rayhon va bir chimdim achchiq qalampir.",
+    "description_ru": "Помидоры, лук, базилик и щепотка острого перца.",
+    "price": 25000,
+    "weight": "180 g",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 14,
+    "created_at": "2026-09-04T17:39:10.279Z",
+    "updated_at": "2026-09-23T13:17:02.141Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 9,
+  "fields": {
+    "category": 3,
+    "name_uz": "Oq salat",
+    "name_ru": "Белый салат",
+    "description_uz": "Tovuq filesi, bodring, tuxum va mayin qayla.",
+    "description_ru": "Куриное филе, огурец, яйцо и нежная заправка.",
+    "price": 29000,
+    "weight": "200 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 15,
+    "created_at": "2026-09-04T17:39:10.687Z",
+    "updated_at": "2026-09-23T13:17:02.241Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 10,
+  "fields": {
+    "category": 4,
+    "name_uz": "Ko‘k choy",
+    "name_ru": "Зелёный чай",
+    "description_uz": "Choynakda yangi damlangan ko‘k choy.",
+    "description_ru": "Свежезаваренный зелёный чай в чайнике.",
+    "price": 12000,
+    "weight": "0.8 l",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 20,
+    "created_at": "2026-09-04T17:39:11.120Z",
+    "updated_at": "2026-09-23T13:17:02.892Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 12,
+  "fields": {
+    "category": 4,
+    "name_uz": "Mevali kompot",
+    "name_ru": "Фруктовый компот",
+    "description_uz": "Mavsumiy mevalardan tayyorlangan uy kompoti.",
+    "description_ru": "Домашний компот из сезонных фруктов.",
+    "price": 16000,
+    "weight": "0.5 l",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 22,
+    "created_at": "2026-09-04T17:39:11.970Z",
+    "updated_at": "2026-09-23T13:17:03.283Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 13,
+  "fields": {
+    "category": 5,
+    "name_uz": "Baursak",
+    "name_ru": "Баурсак",
+    "description_uz": "Oltin rangda qovurilgan yumshoq xamir bo‘laklari.",
+    "description_ru": "Воздушные кусочки теста, обжаренные до золотистой корочки.",
+    "price": 22000,
+    "weight": "250 g",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 23,
+    "created_at": "2026-09-04T17:39:12.407Z",
+    "updated_at": "2026-09-23T13:17:03.384Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 14,
+  "fields": {
+    "category": 5,
+    "name_uz": "Chak-chak",
+    "name_ru": "Чак-чак",
+    "description_uz": "Asal bilan biriktirilgan mayin qovurilgan xamir.",
+    "description_ru": "Нежное обжаренное тесто, соединённое ароматным мёдом.",
+    "price": 26000,
+    "weight": "180 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 24,
+    "created_at": "2026-09-04T17:39:12.852Z",
+    "updated_at": "2026-09-23T13:17:03.617Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 15,
+  "fields": {
+    "category": 5,
+    "name_uz": "Asalli tort",
+    "name_ru": "Медовый торт",
+    "description_uz": "Yupqa asalli qatlamlar va yengil qaymoqli krem.",
+    "description_ru": "Тонкие медовые коржи и лёгкий сливочный крем.",
+    "price": 28000,
+    "weight": "1 bo‘lak",
+    "is_available": false,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 25,
+    "created_at": "2026-09-04T17:39:13.280Z",
+    "updated_at": "2026-09-23T13:17:03.858Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 17,
+  "fields": {
+    "category": 1,
+    "name_uz": "Sur go‘shtli beshbarmak",
+    "name_ru": "Бешбармак с вяленым мясом",
+    "description_uz": "Sur go‘sht, uy xamiri va xushbo‘y sho‘rva bilan to‘yimli beshbarmak.",
+    "description_ru": "Сытный бешбармак с вяленым мясом, домашней лапшой и ароматным бульоном.",
+    "price": 100000,
+    "weight": "450 g",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 2,
+    "created_at": "2026-09-22T19:29:10.808Z",
+    "updated_at": "2026-09-23T13:17:00.125Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 18,
+  "fields": {
+    "category": 1,
+    "name_uz": "KFC uslubidagi tovuq",
+    "name_ru": "Курица в стиле KFC",
+    "description_uz": "Qarsildoq qobiqda qovurilgan, ziravorli tovuq bo‘laklari.",
+    "description_ru": "Пряные кусочки курицы в хрустящей панировке.",
+    "price": 40000,
+    "weight": "1 porsiya",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 6,
+    "created_at": "2026-09-22T19:29:11.446Z",
+    "updated_at": "2026-09-23T13:17:00.827Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 19,
+  "fields": {
+    "category": 1,
+    "name_uz": "Norin va sho‘rva",
+    "name_ru": "Нарын с шурпой",
+    "description_uz": "Mayin to‘g‘ralgan xamir va go‘sht, yoniga issiq sho‘rva.",
+    "description_ru": "Тонко нарезанное тесто с мясом и горячая шурпа.",
+    "price": 40000,
+    "weight": "1 porsiya",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 7,
+    "created_at": "2026-09-22T19:29:11.684Z",
+    "updated_at": "2026-09-23T13:17:00.934Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 20,
+  "fields": {
+    "category": 7,
+    "name_uz": "Mangalda baliq",
+    "name_ru": "Рыба на мангале",
+    "description_uz": "Mangalda xushbo‘y ziravorlar bilan pishirilgan baliq.",
+    "description_ru": "Рыба, приготовленная на мангале с ароматными специями.",
+    "price": 70000,
+    "weight": "1 porsiya",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 11,
+    "created_at": "2026-09-22T19:29:12.371Z",
+    "updated_at": "2026-09-23T13:17:01.640Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 21,
+  "fields": {
+    "category": 7,
+    "name_uz": "Cho‘poncha baliq",
+    "name_ru": "Рыба по-чабански",
+    "description_uz": "Sabzavot va maxsus qayla bilan cho‘poncha usuldagi baliq.",
+    "description_ru": "Рыба по-чабански с овощами и фирменным соусом.",
+    "price": 65000,
+    "weight": "1 porsiya",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 12,
+    "created_at": "2026-09-22T19:29:12.607Z",
+    "updated_at": "2026-09-23T13:17:01.825Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 22,
+  "fields": {
+    "category": 7,
+    "name_uz": "Qovurilgan baliq",
+    "name_ru": "Жареная рыба",
+    "description_uz": "Oltin ranggacha qovurilgan baliq, limon va piyoz bilan.",
+    "description_ru": "Рыба, обжаренная до золотистой корочки, с лимоном и луком.",
+    "price": 70000,
+    "weight": "1 porsiya",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": true,
+    "sort_order": 13,
+    "created_at": "2026-09-22T19:29:12.857Z",
+    "updated_at": "2026-09-23T13:17:02.052Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 23,
+  "fields": {
+    "category": 3,
+    "name_uz": "Erkaklar kaprizi",
+    "name_ru": "Мужской каприз",
+    "description_uz": "Go‘sht, tuxum, pishloq va mayin qaylali to‘yimli salat.",
+    "description_ru": "Сытный салат с мясом, яйцом, сыром и нежной заправкой.",
+    "price": 40000,
+    "weight": "200 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 16,
+    "created_at": "2026-09-22T19:29:13.538Z",
+    "updated_at": "2026-09-23T13:17:02.325Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 24,
+  "fields": {
+    "category": 3,
+    "name_uz": "Tailand salati",
+    "name_ru": "Тайский салат",
+    "description_uz": "Go‘sht va rang-barang sabzavotlardan tayyorlangan iliq salat.",
+    "description_ru": "Тёплый салат с мясом и яркими овощами.",
+    "price": 40000,
+    "weight": "200 g",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 17,
+    "created_at": "2026-09-22T19:29:13.750Z",
+    "updated_at": "2026-09-23T13:17:02.426Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 25,
+  "fields": {
+    "category": 3,
+    "name_uz": "Yangi salat",
+    "name_ru": "Свежий салат",
+    "description_uz": "Yangi bodring, pomidor va ko‘katlardan yengil salat.",
+    "description_ru": "Лёгкий салат из свежих огурцов, помидоров и зелени.",
+    "price": 25000,
+    "weight": "180 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 18,
+    "created_at": "2026-09-22T19:29:13.966Z",
+    "updated_at": "2026-09-23T13:17:02.561Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 26,
+  "fields": {
+    "category": 3,
+    "name_uz": "Chiroqchi salati",
+    "name_ru": "Салат Чирокчи",
+    "description_uz": "Sabzavot va maxsus qayla bilan restoran uslubidagi salat.",
+    "description_ru": "Фирменный салат с овощами и специальной заправкой.",
+    "price": 30000,
+    "weight": "200 g",
+    "is_available": true,
+    "is_popular": false,
+    "is_recommended": false,
+    "sort_order": 19,
+    "created_at": "2026-09-22T19:29:14.175Z",
+    "updated_at": "2026-09-23T13:17:02.692Z"
+  }
+},
+{
+  "model": "menu.dish",
+  "pk": 27,
+  "fields": {
+    "category": 4,
+    "name_uz": "Qimiz",
+    "name_ru": "Кумыс",
+    "description_uz": "An’anaviy, tetiklantiruvchi qimiz.",
+    "description_ru": "Традиционный освежающий кумыс.",
+    "price": 50000,
+    "weight": "1 l",
+    "is_available": true,
+    "is_popular": true,
+    "is_recommended": false,
+    "sort_order": 21,
+    "created_at": "2026-09-22T19:29:14.705Z",
+    "updated_at": "2026-09-23T13:17:03.125Z"
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 1,
+  "fields": {
+    "dish": 1,
+    "image": "dishes/2026/09/beshbarmak.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 2,
+  "fields": {
+    "dish": 2,
+    "image": "dishes/2026/09/qazi.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 3,
+  "fields": {
+    "dish": 3,
+    "image": "dishes/2026/09/manti.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 4,
+  "fields": {
+    "dish": 4,
+    "image": "dishes/2026/09/lagman.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 5,
+  "fields": {
+    "dish": 5,
+    "image": "dishes/2026/09/soup.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 6,
+  "fields": {
+    "dish": 6,
+    "image": "dishes/2026/09/soup_GcZJdWP.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 7,
+  "fields": {
+    "dish": 7,
+    "image": "dishes/2026/09/soup_QTxR2qV.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 8,
+  "fields": {
+    "dish": 8,
+    "image": "dishes/2026/09/salad.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 9,
+  "fields": {
+    "dish": 9,
+    "image": "dishes/2026/09/salad_DSYPY7f.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 10,
+  "fields": {
+    "dish": 10,
+    "image": "dishes/2026/09/tea.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 12,
+  "fields": {
+    "dish": 12,
+    "image": "dishes/2026/09/tea_I9648YI.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 13,
+  "fields": {
+    "dish": 13,
+    "image": "dishes/2026/09/baursak.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 14,
+  "fields": {
+    "dish": 14,
+    "image": "dishes/2026/09/baursak_751gZfW.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 15,
+  "fields": {
+    "dish": 15,
+    "image": "dishes/2026/09/dessert.webp",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 19,
+  "fields": {
+    "dish": 18,
+    "image": "dishes/2026/09/menu-fish.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 20,
+  "fields": {
+    "dish": 19,
+    "image": "dishes/2026/09/menu-norin.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 21,
+  "fields": {
+    "dish": 20,
+    "image": "dishes/2026/09/menu-fish_H70eij5.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 22,
+  "fields": {
+    "dish": 21,
+    "image": "dishes/2026/09/menu-fish_Rqlf9ta.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 23,
+  "fields": {
+    "dish": 22,
+    "image": "dishes/2026/09/menu-fried-fish.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 24,
+  "fields": {
+    "dish": 23,
+    "image": "dishes/2026/09/menu-salads.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 25,
+  "fields": {
+    "dish": 24,
+    "image": "dishes/2026/09/menu-salads_ZvjjOpL.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 26,
+  "fields": {
+    "dish": 25,
+    "image": "dishes/2026/09/menu-salads_2AwB5Io.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 27,
+  "fields": {
+    "dish": 26,
+    "image": "dishes/2026/09/menu-salads_4D8Q5GQ.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 28,
+  "fields": {
+    "dish": 27,
+    "image": "dishes/2026/09/menu-qimiz.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.dishimage",
+  "pk": 29,
+  "fields": {
+    "dish": 17,
+    "image": "dishes/2026/09/2026-09-23_00-54-35.png",
+    "sort_order": 0
+  }
+},
+{
+  "model": "menu.promotion",
+  "pk": 1,
+  "fields": {
+    "title_uz": "Beshbarmak 1+1 — 75 000 so‘m",
+    "title_ru": "Бешбармак 1+1 — 75 000 сум",
+    "description_uz": "Milliy taomimizni yangi narxda tatib ko‘ring. Taklif restoranda amal qiladi.",
+    "description_ru": "Попробуйте главное национальное блюдо по специальной цене. Предложение действует в ресторане.",
+    "badge_uz": "Maxsus taklif",
+    "badge_ru": "Специальное предложение",
+    "image": "",
+    "link_url": "#dishes",
+    "starts_at": null,
+    "ends_at": null,
+    "is_active": true,
+    "sort_order": 10,
+    "created_at": "2026-09-22T19:29:15.753Z",
+    "updated_at": "2026-09-22T19:55:03.460Z"
+  }
+},
+{
+  "model": "menu.promotion",
+  "pk": 2,
+  "fields": {
+    "title_uz": "1+ Porsiya beshbarmoq 80+ kota ayolarga",
+    "title_ru": "1+ бешбармак бабушкам старше 80 лет",
+    "description_uz": "1+ бешбармак бабушкам старше 80 лет 1+ бешбармак бабушкам старше 80 лет",
+    "description_ru": "1+ бешбармак бабушкам старше 80 лет 1+ бешбармак бабушкам старше 80 лет",
+    "badge_uz": "Aksiya",
+    "badge_ru": "Акция",
+    "image": "promotions/2026/09/2026-09-23_00-54-56.png",
+    "link_url": "",
+    "starts_at": null,
+    "ends_at": null,
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2026-09-23T12:56:44.891Z",
+    "updated_at": "2026-09-23T12:56:44.891Z"
+  }
+},
+{
+  "model": "menu.promotion",
+  "pk": 3,
+  "fields": {
+    "title_uz": "Beshbarmak — 75 000 so‘m",
+    "title_ru": "Бешбармак — 75 000 сум",
+    "description_uz": "Milliy taomimizni maxsus narxda tatib ko‘ring.",
+    "description_ru": "Попробуйте главное национальное блюдо по специальной цене.",
+    "badge_uz": "Maxsus taklif",
+    "badge_ru": "Специальное предложение",
+    "image": "promotions/2026/09/menu-beshbarmak.png",
+    "link_url": "#dishes",
+    "starts_at": null,
+    "ends_at": null,
+    "is_active": true,
+    "sort_order": 10,
+    "created_at": "2026-09-23T13:17:04.116Z",
+    "updated_at": "2026-09-23T13:17:04.306Z"
+  }
+},
+{
+  "model": "menu.promotion",
+  "pk": 4,
+  "fields": {
+    "title_uz": "Baliq taomlari — 65 000 so‘mdan",
+    "title_ru": "Рыбные блюда — от 65 000 сум",
+    "description_uz": "Mangal va cho‘poncha usulidagi baliq taomlarini tanlang.",
+    "description_ru": "Выберите рыбу на мангале или по-чабански.",
+    "badge_uz": "Yangi menyu",
+    "badge_ru": "Новинка меню",
+    "image": "promotions/2026/09/menu-fish.png",
+    "link_url": "#dishes",
+    "starts_at": null,
+    "ends_at": null,
+    "is_active": true,
+    "sort_order": 20,
+    "created_at": "2026-09-23T13:17:04.584Z",
+    "updated_at": "2026-09-23T13:17:04.771Z"
+  }
+},
+{
+  "model": "menu.promotion",
+  "pk": 5,
+  "fields": {
+    "title_uz": "Norin + sho‘rva — 40 000 so‘m",
+    "title_ru": "Нарын + шурпа — 40 000 сум",
+    "description_uz": "An’anaviy norin va issiq sho‘rva bir porsiyada.",
+    "description_ru": "Традиционный нарын и горячая шурпа в одной подаче.",
+    "badge_uz": "Mazali to‘plam",
+    "badge_ru": "Выгодный набор",
+    "image": "promotions/2026/09/menu-norin.png",
+    "link_url": "#dishes",
+    "starts_at": null,
+    "ends_at": null,
+    "is_active": true,
+    "sort_order": 30,
+    "created_at": "2026-09-23T13:17:04.986Z",
+    "updated_at": "2026-09-23T13:17:05.248Z"
+  }
+},
+{
+  "model": "menu.restaurantsettings",
+  "pk": 1,
+  "fields": {
+    "restaurant_name": "Beshbarmak House",
+    "subtitle_uz": "Milliy taomlar • Issiq • Mazali",
+    "subtitle_ru": "Национальная кухня • С пылу с жару",
+    "about_uz": "Mehmondo‘stlik, iliq muhit va avlodlardan kelayotgan ta’mlar.",
+    "about_ru": "Гостеприимство, тёплая атмосфера и вкус, переданный поколениями.",
+    "phone": "+998 97 877 24 34",
+    "working_hours_uz": "Har kuni, 11:00–23:00",
+    "working_hours_ru": "Ежедневно, 11:00–23:00",
+    "location_text_uz": "Turkys aholi punkti, Samarqand ko‘chasi, 44",
+    "location_text_ru": "населённый пункт Туркыс, ул. Самарканд, 44",
+    "location_url": "https://yandex.uz/maps/?text=%D0%BD%D0%B0%D1%81%D0%B5%D0%BB%D1%91%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%BF%D1%83%D0%BD%D0%BA%D1%82%20%D0%A2%D1%83%D1%80%D0%BA%D1%8B%D1%81%2C%20%D1%83%D0%BB.%20%D0%A1%D0%B0%D0%BC%D0%B0%D1%80%D0%BA%D0%B0%D0%BD%D0%B4%2C%2044",
+    "telegram_url": "https://t.me/bbaxttt",
+    "instagram_url": "https://instagram.com/fayzullayev_b1",
+    "hero_image": "restaurant/hero.webp",
+    "logo": "restaurant/1788595797077.png",
+    "reservation_enabled": true,
+    "minimum_advance_minutes": 60,
+    "maximum_days_ahead": 30,
+    "default_reservation_duration_minutes": 120,
+    "slot_interval_minutes": 30,
+    "minimum_guests": 1,
+    "maximum_guests": 30,
+    "cancellation_limit_hours": 3,
+    "manager_confirmation_required": true
+  }
+}
+]
