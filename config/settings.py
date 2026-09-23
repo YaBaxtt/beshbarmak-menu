@@ -15,6 +15,10 @@ DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 ALLOWED_HOSTS = [host.strip() for host in os.getenv(
     "ALLOWED_HOSTS", "localhost,127.0.0.1,.pythonanywhere.com,.railway.app"
 ).split(",") if host.strip()]
+RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
+
+if RAILWAY_PUBLIC_DOMAIN and RAILWAY_PUBLIC_DOMAIN not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -115,10 +119,26 @@ SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000").rstrip("/")
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 PRIMARY_OWNER_TELEGRAM_ID = os.getenv("PRIMARY_OWNER_TELEGRAM_ID", "")
 
-if SITE_URL.startswith("https://"):
-    CSRF_TRUSTED_ORIGINS = [SITE_URL]
+# Railway automatically provides this variable.
+RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
 
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+# Automatically trust Railway public domain + explicitly configured domains.
+CSRF_TRUSTED_ORIGINS = []
+
+if SITE_URL.startswith("https://"):
+    CSRF_TRUSTED_ORIGINS.append(SITE_URL)
+
+if RAILWAY_PUBLIC_DOMAIN:
+    railway_origin = f"https://{RAILWAY_PUBLIC_DOMAIN}"
+    if railway_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(railway_origin)
+
+for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(","):
+    origin = origin.strip().rstrip("/")
+    if origin and origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
+
+DEBUG = os.getenv(
+    "DEBUG",
+    "False" if os.getenv("RAILWAY_PROJECT_ID") else "True",
+).lower() in {"1", "true", "yes", "on"}
