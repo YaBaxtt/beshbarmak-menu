@@ -1,7 +1,8 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.utils import timezone
 
-from .models import Category, Dish, DishImage, RestaurantSettings
+from .models import Category, Dish, DishImage, Promotion, RestaurantSettings
 
 
 def home(request):
@@ -14,6 +15,11 @@ def home(request):
     )
     categories = list(Category.objects.filter(is_active=True))
     settings = RestaurantSettings.load()
+    now = timezone.now()
+    promotions = Promotion.objects.filter(is_active=True).filter(
+        Q(starts_at__isnull=True) | Q(starts_at__lte=now),
+        Q(ends_at__isnull=True) | Q(ends_at__gte=now),
+    )
 
     dish_data = {
         str(dish.pk): {
@@ -42,9 +48,18 @@ def home(request):
             "categories": categories,
             "dishes": dishes,
             "popular_dishes": [dish for dish in dishes if dish.is_popular],
+            "promotions": promotions,
             "dish_data": dish_data,
+            "language": "uz",
         },
     )
+
+
+def restaurant_info(request):
+    from reservations.models import WorkingHours
+    language = request.GET.get("lang") or request.COOKIES.get("site_language") or "uz"
+    language = language if language in {"uz", "ru"} else "uz"
+    return render(request, "menu/info.html", {"restaurant": RestaurantSettings.load(), "working_hours": WorkingHours.objects.all(), "language": language})
 
 
 def not_found(request, exception):

@@ -1,0 +1,46 @@
+{% extends 'staff/base.html' %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<header class="page-heading analytics-heading">
+  <div><p class="overline">Картина бизнеса</p><h1>Статистика</h1><p>От посещения сайта до подтверждённого стола — одним взглядом.</p></div>
+  <nav class="periods"><a class="{% if days == 1 %}active{% endif %}" href="?days=1">Сегодня</a><a class="{% if days == 7 %}active{% endif %}" href="?days=7">7 дней</a><a class="{% if days == 30 %}active{% endif %}" href="?days=30">30 дней</a><a class="{% if days == 90 %}active{% endif %}" href="?days=90">90 дней</a></nav>
+</header>
+
+<section class="analytics-story">
+  <article class="story-card traffic"><span class="story-icon">👁</span><div><small>Интерес к ресторану</small><strong>{{ site_views }}</strong><p>просмотров · {{ unique_visitors }} уникальных гостей</p></div></article>
+  <span class="story-arrow">→</span>
+  <article class="story-card requests"><span class="story-icon">▣</span><div><small>Решили забронировать</small><strong>{{ total }}</strong><p>заявок · конверсия {{ view_to_request_rate }}%</p></div></article>
+  <span class="story-arrow">→</span>
+  <article class="story-card success"><span class="story-icon">✓</span><div><small>Подтверждены</small><strong>{{ accepted }}</strong><p>{{ guests }} гостей ожидается</p></div></article>
+</section>
+
+<section class="metric-grid analytics-metrics visual-metrics">
+  <div class="metric-visual amber"><span>⌛</span><small>Ждут решения</small><strong>{{ pending }}</strong><em>Новые заявки</em></div>
+  <div class="metric-visual green"><span>✓</span><small>Доля подтверждений</small><strong>{{ acceptance_rate }}%</strong><em>Из обработанных</em></div>
+  <div class="metric-visual clay"><span>↗</span><small>Обработано</small><strong>{{ response_rate }}%</strong><em>{{ processed }} заявок</em></div>
+  <div class="metric-visual brown"><span>👥</span><small>Средняя компания</small><strong>{{ average_group|floatformat:1 }}</strong><em>гостей за столом</em></div>
+</section>
+
+<div class="chart-grid">
+  <section class="panel wide-chart">
+    <div class="panel-heading"><div><p class="overline">Динамика</p><h2>Просмотры, заявки и гости</h2></div></div>
+    <div class="bar-chart" aria-label="Статистика по дням">
+      {% for row in daily %}<div class="bar-column"><div class="bars"><i class="views" style="height:{{ row.views_pct }}%" title="Просмотров: {{ row.views }}"></i><i class="reservations" style="height:{{ row.reservations_pct }}%" title="Заявок: {{ row.reservations }}"></i><i class="guests" style="height:{{ row.guests_pct }}%" title="Гостей: {{ row.guests }}"></i></div><small>{{ row.date|date:'d.m' }}</small></div>{% endfor %}
+    </div>
+    <div class="legend"><span><i class="views"></i>Просмотры</span><span><i class="reservations"></i>Заявки</span><span><i class="guests"></i>Гости</span></div>
+  </section>
+  <section class="panel status-panel">
+    <p class="overline">Результат</p><h2>Статусы заявок</h2>
+    <div class="acceptance-ring" style="--value:{{ acceptance_rate }}"><b>{{ acceptance_rate }}%</b><small>подтверждено</small></div>
+    <div class="rank-list compact">{% for label,count in status_counts %}<div><span>{{ label }}</span><b>{{ count }}</b></div>{% endfor %}</div>
+  </section>
+</div>
+
+<div class="chart-grid three">
+  <section class="panel"><span class="panel-symbol">◷</span><h2>Популярное время</h2><div class="rank-list">{% for row in popular_times %}<div><span>{{ row.time|time:'H:i' }}</span><b>{{ row.count }}</b></div>{% empty %}<p>Появится после первых броней</p>{% endfor %}</div></section>
+  <section class="panel"><span class="panel-symbol">▦</span><h2>Популярные дни</h2><div class="rank-list">{% for name,count in popular_days %}<div><span>{{ name }}</span><b>{{ count }}</b></div>{% endfor %}</div></section>
+  <section class="panel"><span class="panel-symbol">◇</span><h2>Популярные помещения</h2><div class="rank-list">{% for row in popular_spaces %}<div><span>{{ row.space__name }}</span><b>{{ row.count }}</b></div>{% empty %}<p>Появится после первых броней</p>{% endfor %}</div></section>
+</div>
+
+<section class="panel rejection-panel"><div><p class="overline">Что улучшить</p><h2>Причины отказа</h2><p>Помогают понять, где не хватает времени или свободных помещений.</p></div><div class="rank-list">{% for row in rejection_reasons %}<div><span>{{ row.rejection_reason }}</span><b>{{ row.count }}</b></div>{% empty %}<p>За выбранный период отказов с причиной нет.</p>{% endfor %}</div></section>
+{% endblock %}

@@ -1,0 +1,26 @@
+<div class="nav-drawer-overlay" data-nav-close aria-hidden="true"></div>
+<aside class="nav-drawer" aria-hidden="true" aria-labelledby="nav-drawer-title">
+  <header class="nav-drawer-head">
+    <a class="drawer-brand" href="{% url 'menu:home' %}"><span>BH</span><div><b>{{ restaurant.restaurant_name }}</b><small data-i18n data-uz="Milliy oshxona" data-ru="Национальная кухня">{% if language == 'uz' %}Milliy oshxona{% else %}Национальная кухня{% endif %}</small></div></a>
+    <button type="button" class="nav-drawer-close" data-nav-close aria-label="Закрыть меню"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+  </header>
+  <div class="drawer-place">
+    <span class="drawer-place-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+    <div><small data-i18n data-uz="Bizning manzil" data-ru="Наш адрес">{% if language == 'uz' %}Bizning manzil{% else %}Наш адрес{% endif %}</small><b data-i18n data-uz="{{ restaurant.location_text_uz }}" data-ru="{{ restaurant.location_text_ru }}">{% if language == 'uz' %}{{ restaurant.location_text_uz }}{% else %}{{ restaurant.location_text_ru }}{% endif %}</b></div>
+    {% if restaurant.location_url %}<a href="{{ restaurant.location_url }}" target="_blank" rel="noopener" data-i18n data-uz="Yo‘nalish" data-ru="Маршрут">{% if language == 'uz' %}Yo‘nalish{% else %}Маршрут{% endif %}</a>{% endif %}
+  </div>
+  <nav class="drawer-links" id="nav-drawer-title" aria-label="Меню сайта">
+    <a href="{% url 'menu:home' %}#dishes"><span>01</span><b data-i18n data-uz="Menyu" data-ru="Меню">{% if language == 'uz' %}Menyu{% else %}Меню{% endif %}</b><i>→</i></a>
+    <a href="{% url 'menu:home' %}#promotions"><span>02</span><b data-i18n data-uz="Aksiyalar" data-ru="Акции">{% if language == 'uz' %}Aksiyalar{% else %}Акции{% endif %}</b><i>→</i></a>
+    <a href="{% url 'reservations:start' %}?lang={{ language|default:'uz' }}"><span>03</span><b data-i18n data-uz="Stol band qilish" data-ru="Забронировать стол">{% if language == 'uz' %}Stol band qilish{% else %}Забронировать стол{% endif %}</b><i>→</i></a>
+    <a href="#" data-drawer-last-booking hidden><span>04</span><b data-i18n data-uz="Bron holati" data-ru="Статус брони">Bron holati</b><i>→</i></a>
+    <a href="{% url 'menu:info' %}#about"><span>05</span><b data-i18n data-uz="Restoran haqida" data-ru="О ресторане">{% if language == 'uz' %}Restoran haqida{% else %}О ресторане{% endif %}</b><i>→</i></a>
+    <a href="{% url 'menu:info' %}#faq"><span>06</span><b data-i18n data-uz="Ko‘p beriladigan savollar" data-ru="Частые вопросы">{% if language == 'uz' %}Ko‘p beriladigan savollar{% else %}Частые вопросы{% endif %}</b><i>→</i></a>
+    <a href="{% url 'menu:info' %}#contacts"><span>07</span><b data-i18n data-uz="Kontaktlar" data-ru="Контакты">{% if language == 'uz' %}Kontaktlar{% else %}Контакты{% endif %}</b><i>→</i></a>
+  </nav>
+  <div class="drawer-support">
+    <p data-i18n data-uz="Savolingiz bormi? Biz yordam beramiz." data-ru="Есть вопрос? Мы на связи.">{% if language == 'uz' %}Savolingiz bormi? Biz yordam beramiz.{% else %}Есть вопрос? Мы на связи.{% endif %}</p>
+    {% if restaurant.telegram_url %}<a href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener" data-i18n data-uz="Yordamga yozish" data-ru="Написать в поддержку">{% if language == 'uz' %}Yordamga yozish{% else %}Написать в поддержку{% endif %}</a>{% else %}<a href="tel:{{ restaurant.phone|cut:' ' }}" data-i18n data-uz="Yordamga qo‘ng‘iroq" data-ru="Позвонить в поддержку">{% if language == 'uz' %}Yordamga qo‘ng‘iroq{% else %}Позвонить в поддержку{% endif %}</a>{% endif %}
+  </div>
+  <footer class="drawer-footer"><a href="tel:{{ restaurant.phone|cut:' '|cut:'('|cut:')'|cut:'-' }}">{{ restaurant.phone }}</a><span>{% if language == 'uz' %}{{ restaurant.working_hours_uz }}{% else %}{{ restaurant.working_hours_ru }}{% endif %}</span></footer>
+</aside>

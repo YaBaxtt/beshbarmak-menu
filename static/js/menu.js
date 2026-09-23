@@ -25,6 +25,20 @@
   const sheetStatus = document.querySelector(".sheet-status");
   const sheetWeight = document.querySelector(".sheet-weight");
   const sheetDescription = document.querySelector(".sheet-description");
+  const lightbox = document.querySelector(".photo-lightbox");
+  const lightboxImage = lightbox?.querySelector("img");
+  const lightboxClose = lightbox?.querySelector(".photo-lightbox-close");
+  const lastBookingCard = document.querySelector(".last-booking-card");
+  const lastBookingNumber = document.querySelector(".last-booking-number");
+  const lastBookingLink = document.querySelector("[data-last-booking-link]");
+  const drawerLastBooking = document.querySelector("[data-drawer-last-booking]");
+  const lastBookingDismiss = document.querySelector("[data-last-booking-dismiss]");
+  const promotionCarousel = document.querySelector("[data-promotion-carousel]");
+  const promotionTrack = document.querySelector("[data-promotion-track]");
+  const promotionCards = [...document.querySelectorAll("[data-promotion-card]")];
+  const promotionDots = [...document.querySelectorAll("[data-promotion-dot]")];
+  const promotionPrevious = document.querySelector("[data-promotion-previous]");
+  const promotionNext = document.querySelector("[data-promotion-next]");
 
   let currentLang = localStorage.getItem("menu-language") === "ru" ? "ru" : "uz";
   let currentCategory = "all";
@@ -38,10 +52,35 @@
 
   const formatPrice = (value) => Number(value).toLocaleString("ru-RU").replace(/\u00a0/g, " ");
 
+  function updateLastBooking() {
+    const savedUrl = localStorage.getItem("last-reservation-url") || "";
+    const savedNumber = localStorage.getItem("last-reservation-number") || "";
+    const valid = savedUrl.startsWith("/reservation/status/");
+    if (!valid) {
+      if (lastBookingCard) lastBookingCard.hidden = true;
+      if (drawerLastBooking) drawerLastBooking.hidden = true;
+      return;
+    }
+    const separator = savedUrl.includes("?") ? "&" : "?";
+    const localizedUrl = `${savedUrl}${separator}lang=${currentLang}`;
+    if (lastBookingNumber) lastBookingNumber.textContent = savedNumber || (currentLang === "uz" ? "Mening bronim" : "Моя бронь");
+    if (lastBookingLink) lastBookingLink.href = localizedUrl;
+    if (drawerLastBooking) drawerLastBooking.href = localizedUrl;
+    if (lastBookingCard) lastBookingCard.hidden = false;
+    if (drawerLastBooking) drawerLastBooking.hidden = false;
+  }
+
   function applyLanguage(lang) {
     currentLang = lang;
     document.documentElement.lang = lang;
     localStorage.setItem("menu-language", lang);
+    document.cookie = `site_language=${lang}; Max-Age=31536000; Path=/; SameSite=Lax`;
+
+    document.querySelectorAll('a[href^="/reservation/"]').forEach((link) => {
+      const url = new URL(link.href, window.location.origin);
+      url.searchParams.set("lang", lang);
+      link.href = `${url.pathname}${url.search}${url.hash}`;
+    });
 
     document.querySelectorAll("[data-i18n]").forEach((node) => {
       const value = node.dataset[lang];
@@ -60,6 +99,7 @@
       : `${document.querySelector("h1")?.textContent || "Beshbarmak"} — Меню национальной кухни`;
 
     if (openDishId) renderSheet(dishes[openDishId]);
+    updateLastBooking();
     filterMenu();
   }
 
@@ -128,10 +168,82 @@
     sheetPrice.innerHTML = `${formatPrice(dish.price)} <small>so‘m</small>`;
     sheetDescription.textContent = dish[`description_${currentLang}`];
     sheetWeight.textContent = dish.weight || (currentLang === "uz" ? "Ko‘rsatilmagan" : "Не указано");
-    sheetStatus.textContent = dish.available
-      ? (currentLang === "uz" ? "● Mavjud" : "● В наличии")
-      : (currentLang === "uz" ? "● Hozir mavjud emas" : "● Сейчас нет");
+    sheetStatus.textContent = dish.available ? "" : (currentLang === "uz" ? "● Hozir mavjud emas" : "● Сейчас нет");
+    sheetStatus.hidden = dish.available;
     sheetStatus.classList.toggle("unavailable", !dish.available);
+  }
+
+  function openLightbox(image) {
+    if (!lightbox || !lightboxImage || !image?.src) return;
+    lightboxImage.src = image.currentSrc || image.src;
+    lightboxImage.alt = image.alt;
+    lightbox.classList.add("open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.classList.add("lightbox-open");
+    lightboxClose?.focus();
+  }
+
+  function closeLightbox() {
+    if (!lightbox?.classList.contains("open")) return;
+    lightbox.classList.remove("open");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("lightbox-open");
+  }
+
+  function initPromotionCarousel() {
+    if (!promotionTrack || promotionCards.length < 2) return;
+    let currentIndex = 0;
+    let timer = null;
+    let scrollTimer = null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const setActive = (index) => {
+      currentIndex = (index + promotionCards.length) % promotionCards.length;
+      promotionDots.forEach((dot, dotIndex) => {
+        const active = dotIndex === currentIndex;
+        dot.classList.toggle("active", active);
+        dot.setAttribute("aria-current", active ? "true" : "false");
+      });
+    };
+
+    const goTo = (index, behavior = "smooth") => {
+      const normalized = (index + promotionCards.length) % promotionCards.length;
+      const card = promotionCards[normalized];
+      const left = card.offsetLeft - (promotionTrack.clientWidth - card.clientWidth) / 2;
+      promotionTrack.scrollTo({ left, behavior });
+      setActive(normalized);
+    };
+
+    const stopAuto = () => {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    };
+    const startAuto = () => {
+      stopAuto();
+      if (!reducedMotion && !document.hidden) timer = window.setInterval(() => goTo(currentIndex + 1), 5500);
+    };
+
+    promotionPrevious?.addEventListener("click", () => { goTo(currentIndex - 1); startAuto(); });
+    promotionNext?.addEventListener("click", () => { goTo(currentIndex + 1); startAuto(); });
+    promotionDots.forEach((dot) => dot.addEventListener("click", () => { goTo(Number(dot.dataset.promotionDot)); startAuto(); }));
+    promotionTrack.addEventListener("scroll", () => {
+      window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        const center = promotionTrack.scrollLeft + promotionTrack.clientWidth / 2;
+        const nearest = promotionCards.reduce((best, card, index) => {
+          const distance = Math.abs(card.offsetLeft + card.clientWidth / 2 - center);
+          return distance < best.distance ? { index, distance } : best;
+        }, { index: 0, distance: Number.POSITIVE_INFINITY });
+        setActive(nearest.index);
+      }, 80);
+    }, { passive: true });
+    promotionCarousel?.addEventListener("pointerenter", stopAuto);
+    promotionCarousel?.addEventListener("pointerleave", startAuto);
+    promotionCarousel?.addEventListener("focusin", stopAuto);
+    promotionCarousel?.addEventListener("focusout", startAuto);
+    document.addEventListener("visibilitychange", () => document.hidden ? stopAuto() : startAuto());
+    setActive(0);
+    startAuto();
   }
 
   function openSheet(id, trigger) {
@@ -183,6 +295,11 @@
     filterMenu();
     search.focus();
   });
+  lastBookingDismiss?.addEventListener("click", () => {
+    localStorage.removeItem("last-reservation-url");
+    localStorage.removeItem("last-reservation-number");
+    updateLastBooking();
+  });
 
   document.querySelectorAll(".dish-trigger").forEach((trigger) => {
     trigger.addEventListener("click", () => openSheet(trigger.dataset.dishId, trigger));
@@ -191,6 +308,10 @@
   sheetClose?.addEventListener("click", closeSheet);
   overlay?.addEventListener("click", closeSheet);
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox?.classList.contains("open")) {
+      closeLightbox();
+      return;
+    }
     if (event.key === "Escape") closeSheet();
     if (event.key === "Tab" && sheet.classList.contains("open")) {
       const focusable = [...sheet.querySelectorAll("button, [tabindex='0']")];
@@ -211,6 +332,13 @@
     const index = Math.round(gallery.scrollLeft / Math.max(gallery.clientWidth, 1));
     [...galleryDots.children].forEach((dot, dotIndex) => dot.classList.toggle("active", index === dotIndex));
   }, { passive: true });
+  gallery?.addEventListener("click", (event) => {
+    if (event.target instanceof HTMLImageElement) openLightbox(event.target);
+  });
+  lightboxClose?.addEventListener("click", closeLightbox);
+  lightbox?.addEventListener("click", (event) => {
+    if (event.target !== lightboxImage && event.target !== lightboxClose) closeLightbox();
+  });
 
   const observer = "IntersectionObserver" in window
     ? new IntersectionObserver((entries) => {
@@ -228,5 +356,6 @@
     else node.classList.add("visible");
   });
 
+  initPromotionCarousel();
   applyLanguage(currentLang);
 })();

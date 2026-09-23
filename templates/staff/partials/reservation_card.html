@@ -1,0 +1,5 @@
+<article class="reservation-card">
+  <time>{{ reservation.time|time:'H:i' }}</time>
+  <div><span class="status-badge {{ reservation.status|lower }}">{{ reservation.get_status_display }}</span><h3>{{ reservation.public_number }} · {{ reservation.customer_name }}</h3><p>{{ reservation.guests_count }} гостей · {{ reservation.space.name }}</p></div>
+  <a class="staff-button secondary" href="{% url 'staff:reservation_detail' reservation.pk %}">Открыть</a>
+</article>

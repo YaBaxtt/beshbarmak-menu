@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Dish, DishImage, RestaurantSettings
+from .models import Category, Dish, DishImage, Promotion, RestaurantSettings
 
 
 admin.site.site_header = "Beshbarmak House boshqaruvi"
@@ -87,11 +87,15 @@ class DishAdmin(admin.ModelAdmin):
 
 @admin.register(RestaurantSettings)
 class RestaurantSettingsAdmin(admin.ModelAdmin):
+    list_display = ("restaurant_name", "phone", "working_hours_ru", "reservation_enabled")
+    search_fields = ("restaurant_name", "phone", "location_text_ru", "location_text_uz")
+    readonly_fields = ()
     fieldsets = (
         ("Brend / бренд", {"fields": ("restaurant_name", "logo", "hero_image")}),
         ("Matnlar / тексты", {"fields": ("subtitle_uz", "subtitle_ru", "about_uz", "about_ru")}),
         ("Aloqa / контакты", {"fields": ("phone", "working_hours_uz", "working_hours_ru", "location_text_uz", "location_text_ru", "location_url")}),
         ("Ijtimoiy tarmoqlar / соцсети", {"fields": ("telegram_url", "instagram_url")}),
+        ("Бронирование", {"fields": ("reservation_enabled", "minimum_advance_minutes", "maximum_days_ahead", "default_reservation_duration_minutes", "slot_interval_minutes", "minimum_guests", "maximum_guests", "cancellation_limit_hours", "manager_confirmation_required")}),
     )
 
     def has_add_permission(self, request):
@@ -99,3 +103,15 @@ class RestaurantSettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Promotion)
+class PromotionAdmin(admin.ModelAdmin):
+    list_display = ("title_uz", "title_ru", "is_active", "starts_at", "ends_at", "sort_order")
+    list_editable = ("is_active", "sort_order")
+    list_filter = ("is_active",)
+    search_fields = ("title_uz", "title_ru", "description_uz", "description_ru")
+    fieldsets = (
+        ("Matn / текст", {"fields": ("title_uz", "title_ru", "description_uz", "description_ru", "badge_uz", "badge_ru")}),
+        ("Ko‘rinish / отображение", {"fields": ("image", "link_url", "starts_at", "ends_at", "is_active", "sort_order")}),
+    )

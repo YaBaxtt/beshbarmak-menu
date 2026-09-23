@@ -15,8 +15,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260905-4">
-  <script src="{% static 'js/menu.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260923-2">
+  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260922-1">
+  <script src="{% static 'js/menu.js' %}?v=20260923-2" defer></script>
+  <script src="{% static 'js/site-nav.js' %}" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#menu-content">Menyuga o‘tish / К меню</a>
@@ -27,11 +29,13 @@
     <section class="hero" {% if restaurant.hero_image %}style="--hero-image: url('{{ restaurant.hero_image.url }}')"{% else %}style="--hero-image: url('{% static 'images/demo/hero.webp' %}')"{% endif %}>
       <div class="hero-grain" aria-hidden="true"></div>
       <header class="hero-topbar">
+        <a class="top-reservation" href="{% url 'reservations:start' %}?lang=uz" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
         <div class="language-switch" role="group" aria-label="Til / Язык">
           <button type="button" class="lang-button active" data-lang="uz" aria-pressed="true">UZ</button>
           <span></span>
           <button type="button" class="lang-button" data-lang="ru" aria-pressed="false">RU</button>
         </div>
+        <button class="nav-more-button" type="button" data-nav-open aria-label="Открыть меню" aria-expanded="false"><i></i><i></i><i></i></button>
       </header>
 
       <div class="hero-content">
@@ -53,31 +57,34 @@
     </section>
 
     <section class="quick-actions" aria-label="Tezkor havolalar / Быстрые ссылки">
-      <a class="action-button menu-action" href="#dishes">
+      <a class="action-button menu-action" href="{% url 'reservations:start' %}?lang=uz">
         <span class="action-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M4 3v5c0 2 1 3 3 3s3-1 3-3V3M7 11v10M16 3c3 2 4 5 4 9h-4v9M16 3v18"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v3M19 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/><path d="m9 14 2 2 4-5"/></svg>
         </span>
-        <span>Menu</span>
+        <span data-i18n data-uz="Band qilish" data-ru="Забронировать">Band qilish</span>
       </a>
-      <a class="action-button telegram-action" href="{{ restaurant.telegram_url|default:'#' }}" target="_blank" rel="noopener">
+      {% if restaurant.telegram_url %}<a class="action-button telegram-action" href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">
         <span class="action-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 4-3 16-6-5-3 3 1-5 8-6-10 5-5-2Z"/></svg>
         </span>
         <span>Telegram</span>
-      </a>
-      <a class="action-button instagram-action" href="{{ restaurant.instagram_url|default:'#' }}" target="_blank" rel="noopener">
+      </a>{% endif %}
+      {% if restaurant.instagram_url %}<a class="action-button instagram-action" href="{{ restaurant.instagram_url }}" target="_blank" rel="noopener">
         <span class="action-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         </span>
         <span>Instagram</span>
-      </a>
+      </a>{% endif %}
     </section>
 
     <section class="info-strip" aria-label="Restoran ma’lumotlari / Информация о ресторане">
-      <a href="{{ restaurant.location_url|default:'#' }}" target="_blank" rel="noopener" class="info-item">
+      {% if restaurant.location_url %}<a href="{{ restaurant.location_url }}" target="_blank" rel="noopener" class="info-item">
         <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
         <span><small data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</small><b data-i18n data-uz="{{ restaurant.location_text_uz }}" data-ru="{{ restaurant.location_text_ru }}">{{ restaurant.location_text_uz }}</b></span>
-      </a>
+      </a>{% else %}<div class="info-item">
+        <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+        <span><small data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</small><b data-i18n data-uz="{{ restaurant.location_text_uz }}" data-ru="{{ restaurant.location_text_ru }}">{{ restaurant.location_text_uz }}</b></span>
+      </div>{% endif %}
       <a href="tel:{{ restaurant.phone|cut:' '|cut:'('|cut:')'|cut:'-' }}" class="info-item">
         <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3H4a1 1 0 0 0-1 1c0 9 8 17 17 17a1 1 0 0 0 1-1v-3l-5-2-1.5 3c-3.8-1.6-6.9-4.7-8.5-8.5L9 8Z"/></svg></span>
         <span><small data-i18n data-uz="Telefon" data-ru="Телефон">Telefon</small><b>{{ restaurant.phone }}</b></span>
@@ -88,7 +95,41 @@
       </div>
     </section>
 
+    <section class="last-booking-card" hidden aria-live="polite">
+      <span class="last-booking-icon">✓</span>
+      <div><small data-i18n data-uz="Oxirgi bron" data-ru="Последняя бронь">Oxirgi bron</small><b class="last-booking-number"></b></div>
+      <a href="#" data-last-booking-link data-i18n data-uz="Holatini ko‘rish" data-ru="Проверить статус">Holatini ko‘rish</a>
+      <button type="button" data-last-booking-dismiss aria-label="Yopish / Закрыть">×</button>
+    </section>
+
     <div class="content-wrap">
+      {% if promotions %}
+      <section class="promotion-section reveal" id="promotions">
+        <div class="section-heading">
+          <div><p class="section-kicker" data-i18n data-uz="Maxsus takliflar" data-ru="Специальные предложения">Maxsus takliflar</p><h2 data-i18n data-uz="Aksiyalar" data-ru="Акции">Aksiyalar</h2></div>
+        </div>
+        <div class="promotion-carousel" data-promotion-carousel>
+          {% if promotions|length > 1 %}<button class="promotion-arrow previous" type="button" data-promotion-previous aria-label="Oldingi aksiya / Предыдущая акция">‹</button>{% endif %}
+          <div class="promotion-list" data-promotion-track>
+          {% for promotion in promotions %}
+          <article class="promotion-card" data-promotion-card>
+            {% if promotion.image %}<img src="{{ promotion.image.url }}" alt="{{ promotion.title_uz }}" loading="lazy">{% else %}<img src="{% static 'images/demo/beshbarmak.webp' %}" alt="{{ promotion.title_uz }}" loading="lazy">{% endif %}
+            <div class="promotion-shade"></div>
+            <div class="promotion-copy">
+              <span data-i18n data-uz="{{ promotion.badge_uz }}" data-ru="{{ promotion.badge_ru }}">{{ promotion.badge_uz }}</span>
+              <h3 data-i18n data-uz="{{ promotion.title_uz }}" data-ru="{{ promotion.title_ru }}">{{ promotion.title_uz }}</h3>
+              <p data-i18n data-uz="{{ promotion.description_uz }}" data-ru="{{ promotion.description_ru }}">{{ promotion.description_uz }}</p>
+              {% if promotion.link_url %}<a href="{{ promotion.link_url }}" data-i18n data-uz="Batafsil" data-ru="Подробнее">Batafsil</a>{% endif %}
+            </div>
+          </article>
+          {% endfor %}
+          </div>
+          {% if promotions|length > 1 %}<button class="promotion-arrow next" type="button" data-promotion-next aria-label="Keyingi aksiya / Следующая акция">›</button>{% endif %}
+        </div>
+        {% if promotions|length > 1 %}<div class="promotion-dots" data-promotion-dots aria-label="Aksiyalar / Акции">{% for promotion in promotions %}<button type="button" class="{% if forloop.first %}active{% endif %}" data-promotion-dot="{{ forloop.counter0 }}" aria-label="{{ forloop.counter }}"></button>{% endfor %}</div>{% endif %}
+      </section>
+      {% endif %}
+
       <section class="intro-row reveal">
         <div>
           <p class="section-kicker" data-i18n data-uz="Bizning taomlar" data-ru="Наши блюда">Bizning taomlar</p>
@@ -167,9 +208,7 @@
                       {% if dish.is_popular %}<span class="mini-badge hot">🔥</span>{% endif %}
                       {% if dish.is_recommended %}<span class="mini-badge recommended">★</span>{% endif %}
                     </div>
-                    {% if dish.is_available %}
-                      <span class="available-status" data-i18n data-uz="Mavjud" data-ru="В наличии">Mavjud</span>
-                    {% else %}
+                    {% if not dish.is_available %}
                       <span class="sold-out" data-i18n data-uz="Hozir mavjud emas" data-ru="Сейчас нет в наличии">Hozir mavjud emas</span>
                     {% endif %}
                   </div>
@@ -204,10 +243,11 @@
       <h2>{{ restaurant.restaurant_name }}</h2>
       <p data-i18n data-uz="{{ restaurant.subtitle_uz }}" data-ru="{{ restaurant.subtitle_ru }}">{{ restaurant.subtitle_uz }}</p>
       <div class="footer-links">
-        <a href="{{ restaurant.location_url|default:'#' }}" target="_blank" rel="noopener" data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</a>
+        {% if restaurant.location_url %}<a href="{{ restaurant.location_url }}" target="_blank" rel="noopener" data-i18n data-uz="Manzil" data-ru="Адрес">Manzil</a>{% endif %}
         <a href="tel:{{ restaurant.phone|cut:' ' }}">{{ restaurant.phone }}</a>
-        <a href="{{ restaurant.telegram_url|default:'#' }}" target="_blank" rel="noopener">Telegram</a>
-        <a href="{{ restaurant.instagram_url|default:'#' }}" target="_blank" rel="noopener">Instagram</a>
+        {% if restaurant.telegram_url %}<a href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+        {% if restaurant.instagram_url %}<a href="{{ restaurant.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        <a href="{% url 'reservations:start' %}?lang=uz" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
         <span class="footer-hours" data-i18n data-uz="{{ restaurant.working_hours_uz }}" data-ru="{{ restaurant.working_hours_ru }}">{{ restaurant.working_hours_uz }}</span>
       </div>
       <div class="footer-rule"></div>
@@ -243,6 +283,13 @@
     </div>
   </aside>
 
+  <div class="photo-lightbox" role="dialog" aria-modal="true" aria-label="Taom rasmi / Фото блюда" aria-hidden="true">
+    <button class="photo-lightbox-close" type="button" aria-label="Yopish / Закрыть">×</button>
+    <img src="" alt="">
+    <p data-i18n data-uz="Yopish uchun rasm tashqarisiga bosing" data-ru="Нажмите вне фото, чтобы закрыть">Yopish uchun rasm tashqarisiga bosing</p>
+  </div>
+
   {{ dish_data|json_script:"dish-data" }}
+  {% include 'partials/mobile_drawer.html' %}
 </body>
 </html>

@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from .models import Category, Dish, RestaurantSettings
+from .models import Category, Dish, Promotion, RestaurantSettings
 
 
 class MenuTests(TestCase):
@@ -35,16 +35,29 @@ class MenuTests(TestCase):
         self.assertContains(response, "Beshbarmak House")
         self.assertContains(response, "Beshbarmak")
         self.assertContains(response, "Taom qidirish")
+        self.assertContains(response, "Maxsus takliflar")
+        self.assertContains(response, "Beshbarmak — 75 000 so‘m")
+        self.assertNotContains(response, "available-status")
 
     def test_demo_seed_is_idempotent(self):
-        counts = (Category.objects.count(), Dish.objects.count(), RestaurantSettings.objects.count())
+        counts = (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count())
         call_command("seed_demo")
-        self.assertEqual(counts, (Category.objects.count(), Dish.objects.count(), RestaurantSettings.objects.count()))
+        self.assertEqual(counts, (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count()))
 
     def test_unavailable_dish_stays_visible(self):
         dish = Dish.objects.filter(is_available=False).first()
         response = self.client.get(reverse("menu:home"))
         self.assertContains(response, dish.name_uz)
+
+    def test_mobile_navigation_and_information_page(self):
+        response = self.client.get(reverse("menu:home"))
+        self.assertContains(response, "data-nav-open")
+        self.assertContains(response, reverse("menu:info") + "#faq")
+        info = self.client.get(reverse("menu:info"))
+        self.assertEqual(info.status_code, 200)
+        self.assertContains(info, "Частые вопросы")
+        self.assertContains(info, "+998 97 877 24 34")
+        self.assertContains(info, "Яндекс Карты")
 
     def test_only_one_restaurant_settings_record(self):
         RestaurantSettings.load()
@@ -64,6 +77,7 @@ class MenuTests(TestCase):
             reverse("admin:menu_category_changelist"),
             reverse("admin:menu_dish_changelist"),
             reverse("admin:menu_dish_change", args=(dish.pk,)),
+            reverse("admin:menu_promotion_changelist"),
             reverse("admin:menu_restaurantsettings_changelist"),
         )
         for url in urls:

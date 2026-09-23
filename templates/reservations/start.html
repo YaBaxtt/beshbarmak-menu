@@ -1,0 +1,82 @@
+{% extends 'reservations/base.html' %}
+{% load static %}
+{% block title %}{{ t.page_title }}{% endblock %}
+{% block content %}
+<section class="booking-hero">
+  <p class="kicker">{{ t.booking }}</p>
+  <h1>{{ t.hero_title }}</h1>
+  <p>{{ t.hero_text }}</p>
+</section>
+
+<section class="booking-shell" data-language="{{ language }}" data-slots-url="{% url 'reservations:slots' %}" data-spaces-url="{% url 'reservations:spaces' %}">
+  <ol class="steps" aria-label="{{ t.booking }}">
+    <li class="active" data-step-indicator="1"><span>1</span><b>{{ t.when }}</b></li>
+    <li data-step-indicator="2"><span>2</span><b>{{ t.where }}</b></li>
+    <li data-step-indicator="3"><span>3</span><b>{{ t.contacts }}</b></li>
+  </ol>
+
+  <form method="post" id="reservation-form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="lang" value="{{ language }}">
+    <input type="hidden" name="submission_token" value="{{ submission_token }}">
+    {% if form.non_field_errors %}<div class="form-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+    <fieldset class="form-step active" data-step="1">
+      <legend>{{ t.date_time_guests }}</legend>
+      <p class="step-note">{{ t.hours_note }}</p>
+      <div class="field-grid">
+        <div class="field"><label for="{{ form.date.id_for_label }}">{{ t.date }}</label>{{ form.date }}{{ form.date.errors }}</div>
+        <div class="field"><label for="{{ form.time.id_for_label }}">{{ t.time }}</label>{{ form.time }}{{ form.time.errors }}<small id="slots-message" aria-live="polite"></small></div>
+      </div>
+      <div class="field guest-field">
+        <label for="{{ form.guests_count.id_for_label }}">{{ t.guest_count }}</label>
+        <div class="guest-counter"><button type="button" data-guest-action="minus" aria-label="{{ t.decrease }}">−</button>{{ form.guests_count }}<button type="button" data-guest-action="plus" aria-label="{{ t.increase }}">+</button></div>
+        {{ form.guests_count.errors }}
+      </div>
+      <div class="step-actions"><button type="button" class="button primary" data-next="2">{{ t.choose_place }}</button></div>
+    </fieldset>
+
+    <fieldset class="form-step" data-step="2">
+      <legend>{{ t.space_title }}</legend>
+      <p class="step-note">{{ t.space_note }}</p>
+      <input type="hidden" name="space" id="selected-space" value="{{ form.space.value|default:'' }}">
+      <div id="space-list" class="space-grid" aria-live="polite"></div>
+      {{ form.space.errors }}
+      <div id="spaces-empty" class="empty-message" hidden>
+        <h2>{{ t.no_spaces }}</h2>
+        <p>{{ t.try_change }}</p>
+        <div><button type="button" class="button secondary" data-back="1">{{ t.change_time }}</button><a class="button text" href="tel:{{ restaurant.phone|cut:' ' }}">{{ t.call }}</a></div>
+      </div>
+      <div class="step-actions split"><button type="button" class="button text" data-back="1">{{ t.back }}</button><button type="button" class="button primary" data-next="3">{{ t.continue }}</button></div>
+    </fieldset>
+
+    <fieldset class="form-step" data-step="3">
+      <legend>{{ t.contact_title }}</legend>
+      <p class="step-note">{{ t.privacy_note }}</p>
+      <div class="field-grid">
+        <div class="field"><label for="{{ form.customer_name.id_for_label }}">{{ t.name }}</label>{{ form.customer_name }}{{ form.customer_name.errors }}</div>
+        <div class="field"><label for="{{ form.phone.id_for_label }}">{{ t.phone }}</label>{{ form.phone }}{{ form.phone.errors }}</div>
+      </div>
+      <div class="field"><label for="{{ form.occasion.id_for_label }}">{{ t.occasion }} <small>{{ t.optional }}</small></label>{{ form.occasion }}{{ form.occasion.errors }}</div>
+      <div class="field"><label for="{{ form.customer_comment.id_for_label }}">{{ t.comment }} <small>{{ t.optional }}</small></label>{{ form.customer_comment }}{{ form.customer_comment.errors }}</div>
+
+      <section class="booking-preview" id="booking-preview" hidden>
+        <p class="kicker">{{ t.check_data }}</p>
+        <h2>{{ t.all_correct }}</h2>
+        <dl>
+          <div><dt>{{ t.date }}</dt><dd data-preview="date"></dd></div>
+          <div><dt>{{ t.time }}</dt><dd data-preview="time"></dd></div>
+          <div><dt>{{ t.guests }}</dt><dd data-preview="guests"></dd></div>
+          <div><dt>{{ t.place }}</dt><dd data-preview="space"></dd></div>
+          <div><dt>{{ t.name }}</dt><dd data-preview="name"></dd></div>
+          <div><dt>{{ t.phone }}</dt><dd data-preview="phone"></dd></div>
+          <div class="wide"><dt>{{ t.comment }}</dt><dd data-preview="comment"></dd></div>
+        </dl>
+        <p class="pending-note">{{ t.not_confirmed }}</p>
+      </section>
+      <div class="step-actions split"><button type="button" class="button text" data-back="2">{{ t.back }}</button><button type="button" class="button primary" id="preview-button">{{ t.check_data }}</button><button type="submit" class="button primary" id="submit-button" hidden>{{ t.submit }}</button></div>
+    </fieldset>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/reservation.js' %}?v=20260923-2" defer></script>{% endblock %}

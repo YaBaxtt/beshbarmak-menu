@@ -1,0 +1,57 @@
+{% extends 'reservations/base.html' %}
+{% load static %}
+{% block title %}{{ t.application }} {{ reservation.public_number }}{% endblock %}
+{% block content %}
+<section class="status-shell" data-language="{{ language }}" data-public-number="{{ reservation.public_number }}" data-public-url="{% url 'reservations:status' reservation.public_token %}" data-status-url="{% url 'reservations:status_data' reservation.public_token %}?lang={{ language }}" data-current-status="{{ reservation.status }}" data-current-updated="{{ reservation.updated_at.isoformat }}">
+  {% if request.GET.error %}<div class="form-alert" role="alert">{{ request.GET.error }}</div>{% endif %}
+  <p class="kicker">{{ t.application }} {{ reservation.public_number }}</p>
+  {% if reservation.status == 'PENDING' %}
+    <div class="status-icon pending">⌛</div><h1>{{ t.pending_title }}</h1>
+    <p class="status-lead">{{ t.pending_text }}</p>
+  {% elif reservation.status == 'ACCEPTED' %}
+    <div class="status-icon accepted">✓</div><h1>{{ t.accepted_title }}</h1>
+    <p class="status-lead">{{ t.accepted_text }}</p>
+  {% elif reservation.status == 'CHANGE_PROPOSED' %}
+    <div class="status-icon proposed">◷</div><h1>{{ t.proposed_title }}</h1>
+    <p class="status-lead">{{ t.proposed_text }}</p>
+  {% elif reservation.status == 'REJECTED' %}
+    <div class="status-icon rejected">×</div><h1>{{ t.rejected_title }}</h1>
+    <p class="status-lead">{{ t.rejected_text }}</p>
+  {% elif reservation.status == 'CANCELLED' %}
+    <div class="status-icon cancelled">×</div><h1>{{ t.cancelled_title }}</h1>
+    <p class="status-lead">{{ t.cancelled_text }}</p>
+  {% else %}
+    <div class="status-icon accepted">✓</div><h1>{{ status_label }}</h1>
+  {% endif %}
+
+  <dl class="status-details">
+    <div><dt>{{ t.date }}</dt><dd>{{ reservation.date|date:'d.m.Y' }}</dd></div>
+    <div><dt>{{ t.time }}</dt><dd>{{ reservation.time|time:'H:i' }}</dd></div>
+    <div><dt>{{ t.guests }}</dt><dd>{{ reservation.guests_count }}</dd></div>
+    <div><dt>{{ t.place }}</dt><dd>{% if language == 'uz' %}{{ reservation.space.name_uz|default:reservation.space.name }}{% else %}{{ reservation.space.name }}{% endif %}</dd></div>
+  </dl>
+
+  {% if reservation.status == 'CHANGE_PROPOSED' %}
+  <section class="proposal-card">
+    <p>{{ t.proposal }}</p><strong>{{ reservation.proposed_date|date:'d.m.Y' }} · {{ reservation.proposed_time|time:'H:i' }}</strong>
+    {% if reservation.manager_comment %}<blockquote>{{ reservation.manager_comment }}</blockquote>{% endif %}
+    <div class="status-actions">
+      <form method="post" action="{% url 'reservations:accept_proposal' reservation.public_token %}">{% csrf_token %}<input type="hidden" name="lang" value="{{ language }}"><button class="button primary" type="submit">{{ t.agree }}</button></form>
+      <form method="post" action="{% url 'reservations:decline_proposal' reservation.public_token %}">{% csrf_token %}<input type="hidden" name="lang" value="{{ language }}"><button class="button text" type="submit">{{ t.not_suitable }}</button></form>
+    </div>
+  </section>
+  {% endif %}
+  {% if reservation.status == 'REJECTED' and reservation.rejection_reason %}<div class="reason-box"><b>{{ t.reason }}</b><p>{{ reservation.rejection_reason }}</p></div>{% endif %}
+
+  <div class="status-actions">
+    {% if reservation.status == 'ACCEPTED' %}
+      <form method="post" action="{% url 'reservations:cancel' reservation.public_token %}" onsubmit="return confirm('{{ t.cancel_confirm|escapejs }}')">{% csrf_token %}<input type="hidden" name="lang" value="{{ language }}"><button class="button text danger-text" type="submit">{{ t.cancel_booking }}</button></form>
+    {% endif %}
+    {% if reservation.status == 'REJECTED' or reservation.status == 'CANCELLED' %}<a class="button primary" href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.choose_another }}</a>{% endif %}
+    <a class="button secondary" href="{% url 'menu:home' %}#dishes">{{ t.return_menu }}</a>
+  </div>
+  <p class="live-note"><span></span> {{ t.live }}</p>
+</section>
+<div class="status-toast" role="status" aria-live="polite"></div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/status.js' %}?v=20260922-2" defer></script>{% endblock %}

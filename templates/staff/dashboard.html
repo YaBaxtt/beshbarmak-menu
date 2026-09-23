@@ -1,0 +1,11 @@
+{% extends 'staff/base.html' %}{% block title %}Сегодня{% endblock %}{% block content %}
+<header class="page-heading"><div><p class="overline">Панель ресторана</p><h1>Сегодня</h1><p>{% now 'd.m.Y' %}</p></div><a class="staff-button primary" href="{% url 'staff:reservations' %}?tab=new">Открыть новые заявки</a></header>
+<section class="metric-grid">
+  <a href="{% url 'staff:reservations' %}?tab=new"><small>Ожидают подтверждения</small><strong>{{ metrics.pending }}</strong><span class="metric-accent amber">Новые заявки</span></a>
+  <a href="{% url 'staff:reservations' %}?tab=accepted"><small>Подтверждено сегодня</small><strong>{{ metrics.accepted }}</strong><span class="metric-accent green">Брони</span></a>
+  <div><small>Гостей ожидается</small><strong>{{ metrics.guests }}</strong><span class="metric-accent brown">Гостей</span></div>
+  <a href="{% url 'staff:reservations' %}?tab=rejected"><small>Отклонено сегодня</small><strong>{{ metrics.rejected }}</strong><span class="metric-accent red">Заявки</span></a>
+</section>
+<section class="panel"><div class="panel-heading"><h2>Брони на сегодня</h2><a href="{% url 'staff:reservations' %}">Показать все</a></div>
+{% if reservations %}<div class="reservation-cards">{% for reservation in reservations %}{% include 'staff/partials/reservation_card.html' %}{% endfor %}</div>{% else %}<div class="empty-panel"><b>На сегодня записей нет</b><p>Новые заявки появятся здесь автоматически.</p></div>{% endif %}</section>
+{% endblock %}

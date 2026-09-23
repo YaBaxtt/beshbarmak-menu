@@ -1,15 +1,20 @@
+import importlib.util
+import os
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-demo-only-change-me-in-production"
-DEBUG = True
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    ".pythonanywhere.com",
-]
+if importlib.util.find_spec("dotenv"):
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / ".env")
+
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-demo-only-change-me-in-production")
+DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
+ALLOWED_HOSTS = [host.strip() for host in os.getenv(
+    "ALLOWED_HOSTS", "localhost,127.0.0.1,.pythonanywhere.com,.railway.app"
+).split(",") if host.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -19,17 +24,23 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "menu",
+    "reservations",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "reservations.middleware.SiteVisitMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+WHITENOISE_AVAILABLE = importlib.util.find_spec("whitenoise") is not None
+if WHITENOISE_AVAILABLE:
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = "config.urls"
 
@@ -57,6 +68,21 @@ DATABASES = {
     }
 }
 
+database_url = os.getenv("DATABASE_URL")
+# The value shown in documentation is a placeholder; keep local development on SQLite until it is replaced.
+if database_url and "@host:" not in database_url:
+    parsed_database_url = urlparse(database_url)
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": unquote(parsed_database_url.path.lstrip("/")),
+        "USER": unquote(parsed_database_url.username or ""),
+        "PASSWORD": unquote(parsed_database_url.password or ""),
+        "HOST": parsed_database_url.hostname or "",
+        "PORT": parsed_database_url.port or "",
+        "CONN_MAX_AGE": 600,
+        "OPTIONS": {"sslmode": "require"} if os.getenv("DATABASE_SSL", "True").lower() in {"1", "true", "yes"} else {},
+    }
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -65,14 +91,34 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "uz-latn"
-TIME_ZONE = "Asia/Tashkent"
+TIME_ZONE = os.getenv("APP_TIMEZONE", "Asia/Tashkent")
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if WHITENOISE_AVAILABLE else "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "staff:login"
+LOGIN_REDIRECT_URL = "staff:dashboard"
+LOGOUT_REDIRECT_URL = "staff:login"
+
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000").rstrip("/")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+PRIMARY_OWNER_TELEGRAM_ID = os.getenv("PRIMARY_OWNER_TELEGRAM_ID", "")
+
+if SITE_URL.startswith("https://"):
+    CSRF_TRUSTED_ORIGINS = [SITE_URL]
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
