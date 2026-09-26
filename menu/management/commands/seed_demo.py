@@ -115,7 +115,6 @@ class Command(BaseCommand):
             restaurant.subtitle_ru = "Национальная кухня • С пылу с жару"
             restaurant.about_uz = "Mehmondo‘stlik, iliq muhit va avlodlardan kelayotgan ta’mlar."
             restaurant.about_ru = "Гостеприимство, тёплая атмосфера и вкус, переданный поколениями."
-            restaurant.phone = "+998 97 877 24 34"
             restaurant.working_hours_uz = "Har kuni, 11:00–23:00"
             restaurant.working_hours_ru = "Ежедневно, 11:00–23:00"
             restaurant.location_text_uz = "Turkys aholi punkti, Samarqand ko‘chasi, 44"
@@ -127,7 +126,8 @@ class Command(BaseCommand):
             if hero_source.exists():
                 with hero_source.open("rb") as image_file:
                     restaurant.hero_image.save("hero.webp", File(image_file), save=False)
-            restaurant.save()
+        restaurant.phone = "+998 94 636 11 44"
+        restaurant.save()
 
         for day in range(7):
             WorkingHours.objects.get_or_create(day_of_week=day, defaults={"open_time": "11:00", "close_time": "23:00"})

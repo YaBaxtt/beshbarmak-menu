@@ -117,7 +117,7 @@ class MenuTests(TestCase):
         info = self.client.get(reverse("menu:info"))
         self.assertEqual(info.status_code, 200)
         self.assertContains(info, "Ko‘p beriladigan savollar")
-        self.assertContains(info, "+998 97 877 24 34")
+        self.assertContains(info, "+998 94 636 11 44")
         self.assertContains(info, "Yandex Xaritalarda")
         self.assertContains(info, "Shikoyat yuborish")
 

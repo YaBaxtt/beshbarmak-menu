@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-4">
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-5">
   <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
   <script src="{% static 'js/menu.js' %}?v=20260926-4" defer></script>
   <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
@@ -151,16 +151,25 @@
         <button class="search-clear" type="button" aria-label="Tozalash / Очистить"><svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg></button>
       </label>
 
-      <nav class="category-scroller" aria-label="Kategoriyalar / Категории">
-        <button class="category-chip active" type="button" data-category="all">
-          <span> 𓎩  </span><b data-i18n data-uz="Barchasi" data-ru="Все">Barchasi</b>
-        </button>
-        {% for category in categories %}
-          <button class="category-chip" type="button" data-category="{{ category.slug }}">
-            <span>{{ category.icon|default:"•" }}</span><b data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</b>
+      <section class="category-filter reveal" aria-label="Kategoriyalar / Категории">
+        <div class="category-filter-heading">
+          <span aria-hidden="true">☰</span>
+          <div>
+            <b data-i18n data-uz="Kategoriyalar" data-ru="Категории">Kategoriyalar</b>
+            <small data-i18n data-uz="Kerakli bo‘limni tanlang" data-ru="Выберите нужный раздел">Kerakli bo‘limni tanlang</small>
+          </div>
+        </div>
+        <nav class="category-scroller">
+          <button class="category-chip active" type="button" data-category="all">
+            <span>𓎩</span><b data-i18n data-uz="Barchasi" data-ru="Все">Barchasi</b>
           </button>
-        {% endfor %}
-      </nav>
+          {% for category in categories %}
+            <button class="category-chip" type="button" data-category="{{ category.slug }}">
+              <span>{{ category.icon|default:"•" }}</span><b data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</b>
+            </button>
+          {% endfor %}
+        </nav>
+      </section>
 
       {% if popular_dishes %}
       <section class="popular-section reveal" id="popular-section">
@@ -198,11 +207,14 @@
         {% for category in categories %}
           <div class="menu-section reveal" data-menu-section="{{ category.slug }}">
             <div class="section-heading menu-heading">
-              <div>
-                <span class="category-overline">{{ category.icon }}</span>
-                <h2 data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</h2>
+              <div class="menu-category-copy">
+                <small class="menu-category-label" data-i18n data-uz="Kategoriya" data-ru="Категория">Kategoriya</small>
+                <div class="menu-category-title">
+                  <span class="category-overline">{{ category.icon }}</span>
+                  <h2 data-i18n data-uz="{{ category.name_uz }}" data-ru="{{ category.name_ru }}">{{ category.name_uz }}</h2>
+                </div>
               </div>
-              <span class="section-count">{{ category.dishes.count|stringformat:"02d" }}</span>
+              <span class="section-count"><b>{{ category.dishes.count|stringformat:"02d" }}</b><small data-i18n data-uz="taom" data-ru="блюд">taom</small></span>
             </div>
             <div class="dish-grid">
               {% for dish in dishes %}

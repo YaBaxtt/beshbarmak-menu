@@ -161,7 +161,7 @@ class RestaurantSettings(models.Model):
     subtitle_ru = models.CharField("Taglavha (ruscha)", max_length=180, default="Национальная кухня • С пылу с жару")
     about_uz = models.TextField("Restoran haqida (o‘zbekcha)", blank=True)
     about_ru = models.TextField("Restoran haqida (ruscha)", blank=True)
-    phone = models.CharField("Telefon", max_length=40, default="+998 90 123 45 67")
+    phone = models.CharField("Telefon", max_length=40, default="+998 94 636 11 44")
     working_hours_uz = models.CharField("Ish vaqti (o‘zbekcha)", max_length=120, default="Har kuni, 10:00–23:00")
     working_hours_ru = models.CharField("Ish vaqti (ruscha)", max_length=120, default="Ежедневно, 10:00–23:00")
     location_text_uz = models.CharField("Manzil (o‘zbekcha)", max_length=180, default="Yangiyo‘l")

@@ -25,6 +25,7 @@ const path = require("path");
       viewport: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,
       cards: document.querySelectorAll(".dish-card").length,
+      dishGridColumns: getComputedStyle(document.querySelector(".dish-grid")).gridTemplateColumns.split(" ").filter(Boolean).length,
       reservationCtas: document.querySelectorAll('a[href^="/reservation/"]').length,
       touchTargets: [...document.querySelectorAll(".lang-button, .category-chip")].map((element) => {
         const rect = element.getBoundingClientRect();
@@ -40,6 +41,9 @@ const path = require("path");
       throw new Error(`Horizontal overflow at ${width}px: ${dimensions.scroll} > ${dimensions.viewport}`);
     }
     if (dimensions.cards < 20) throw new Error(`Expected the expanded menu, found only ${dimensions.cards} cards`);
+    if (width <= 430 && dimensions.dishGridColumns !== 2) throw new Error(`Expected two mobile dish columns at ${width}px, found ${dimensions.dishGridColumns}`);
+    if (!(await page.getByText("Kategoriyalar", { exact: true }).count())) throw new Error("Category selector heading is missing");
+    if (!(await page.getByText("+998 94 636 11 44", { exact: true }).count())) throw new Error("Updated restaurant phone is missing");
     if (await page.locator(".complaint-entry").count()) throw new Error("Complaint button must only be inside the mobile drawer");
     if (await page.locator(".available-status").count()) throw new Error("Artificial availability badges are still visible");
     if (dimensions.reservationCtas < 2) throw new Error(`Expected reservation CTAs, found ${dimensions.reservationCtas}`);
