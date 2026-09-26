@@ -83,6 +83,8 @@ class DishAdmin(admin.ModelAdmin):
 
     @admin.display(description="Narx", ordering="price")
     def price_display(self, obj):
+        if obj.price is None:
+            return "—"
         return f"{obj.price:,}".replace(",", " ") + " so‘m"
 
     @admin.display(description="Yoqtirishlar")

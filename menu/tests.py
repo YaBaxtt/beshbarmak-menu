@@ -36,11 +36,22 @@ class MenuTests(TestCase):
         response = self.client.get(reverse("menu:home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Beshbarmak House")
-        self.assertContains(response, "Beshbarmak")
+        self.assertContains(response, "Beshbarmoq")
         self.assertContains(response, "Taom qidirish")
-        self.assertContains(response, "Maxsus takliflar")
-        self.assertContains(response, "Beshbarmak — 75 000 so‘m")
+        self.assertContains(response, "Norin — porsiya")
+        self.assertContains(response, "50 000")
+        self.assertNotContains(response, "complaint-entry")
         self.assertNotContains(response, "available-status")
+
+    def test_catalog_matches_the_supplied_menu_without_fake_prices_or_photos(self):
+        self.assertEqual(Category.objects.count(), 6)
+        self.assertEqual(Dish.objects.count(), 30)
+        self.assertEqual(Dish.objects.filter(category__slug="salatlar").count(), 8)
+        self.assertEqual(Dish.objects.filter(category__slug="ichimliklar").count(), 14)
+        self.assertEqual(Dish.objects.get(name_uz="Norin — porsiya").price, 50000)
+        self.assertEqual(Dish.objects.get(name_uz="Norin — 1 kg + 3 dona qazi").price, 155000)
+        self.assertIsNone(Dish.objects.get(name_uz="Beshbarmoq").price)
+        self.assertFalse(Dish.objects.exclude(images=None).exists())
 
     def test_demo_seed_is_idempotent(self):
         counts = (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count())
@@ -48,7 +59,9 @@ class MenuTests(TestCase):
         self.assertEqual(counts, (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count()))
 
     def test_unavailable_dish_stays_visible(self):
-        dish = Dish.objects.filter(is_available=False).first()
+        dish = Dish.objects.first()
+        dish.is_available = False
+        dish.save(update_fields=("is_available",))
         response = self.client.get(reverse("menu:home"))
         self.assertContains(response, dish.name_uz)
 

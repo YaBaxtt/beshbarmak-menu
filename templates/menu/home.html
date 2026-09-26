@@ -15,9 +15,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-3">
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-4">
   <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
-  <script src="{% static 'js/menu.js' %}?v=20260926-3" defer></script>
+  <script src="{% static 'js/menu.js' %}?v=20260926-4" defer></script>
   <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
 </head>
 <body>
@@ -102,12 +102,6 @@
       </div>
     </section>
 
-    <a class="complaint-entry" href="{% url 'menu:complaint' %}?lang={{ language|default:'uz' }}">
-      <span class="complaint-entry-icon">!</span>
-      <span><small data-i18n data-uz="Xizmat yoki taom bo‘yicha muammo bo‘ldimi?" data-ru="Возникла проблема с обслуживанием или едой?">Xizmat yoki taom bo‘yicha muammo bo‘ldimi?</small><b data-i18n data-uz="Anonim shikoyat yuborish" data-ru="Отправить анонимную жалобу">Anonim shikoyat yuborish</b></span>
-      <i>→</i>
-    </a>
-
     <section class="last-booking-card" hidden aria-live="polite">
       <span class="last-booking-icon">✓</span>
       <div><small data-i18n data-uz="Oxirgi bron" data-ru="Последняя бронь">Oxirgi bron</small><b class="last-booking-number"></b></div>
@@ -189,7 +183,7 @@
             {% endwith %}
             <div class="popular-copy">
               <span class="popular-name" data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</span>
-              <span class="popular-price">{{ dish.price|price }} <small>so‘m</small></span>
+              {% if dish.price %}<span class="popular-price">{{ dish.price|price }} <small>so‘m</small></span>{% endif %}
             </div>
             <button class="dish-like-button{% if dish.pk in liked_dish_ids %} liked{% endif %}" type="button" data-like-dish="{{ dish.pk }}" data-like-url="{% url 'menu:toggle-dish-like' dish.pk %}" aria-pressed="{% if dish.pk in liked_dish_ids %}true{% else %}false{% endif %}" aria-label="Yoqtirish / Нравится">
               <span aria-hidden="true">♥</span><b data-like-count>{{ dish.likes_count }}</b>
@@ -213,15 +207,12 @@
             <div class="dish-grid">
               {% for dish in dishes %}
                 {% if dish.category_id == category.id %}
-                <article class="dish-card{% if not dish.is_available %} unavailable{% endif %}" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
+                {% with cover=dish.images.first %}
+                <article class="dish-card{% if not dish.is_available %} unavailable{% endif %}{% if not cover %} text-only{% endif %}" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
                   <button class="card-open dish-trigger" type="button" data-dish-id="{{ dish.pk }}" aria-label="{{ dish.name_uz }}"></button>
-                  {% with cover=dish.images.first %}
+                  {% if cover %}
                   <div class="dish-image">
-                    {% if cover %}
-                      <img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="360" height="280">
-                    {% else %}
-                      <div class="image-placeholder"><span>✦</span><small data-i18n data-uz="Rasm tez orada" data-ru="Фото скоро">Rasm tez orada</small></div>
-                    {% endif %}
+                    <img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="360" height="280">
                     <div class="card-badges">
                       {% if dish.is_popular %}<span class="mini-badge hot">🔥</span>{% endif %}
                       {% if dish.is_recommended %}<span class="mini-badge recommended">★</span>{% endif %}
@@ -230,12 +221,12 @@
                       <span class="sold-out" data-i18n data-uz="Hozir mavjud emas" data-ru="Сейчас нет в наличии">Hozir mavjud emas</span>
                     {% endif %}
                   </div>
-                  {% endwith %}
+                  {% endif %}
                   <div class="dish-copy">
                     <h3 data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</h3>
-                    <p data-i18n data-uz="{{ dish.description_uz }}" data-ru="{{ dish.description_ru }}">{{ dish.description_uz }}</p>
+                    {% if dish.description_uz or dish.description_ru %}<p data-i18n data-uz="{{ dish.description_uz }}" data-ru="{{ dish.description_ru }}">{{ dish.description_uz }}</p>{% endif %}
                     <div class="dish-meta">
-                      <span class="price">{{ dish.price|price }} <small>so‘m</small></span>
+                      {% if dish.price %}<span class="price">{{ dish.price|price }} <small>so‘m</small></span>{% endif %}
                       <span class="card-arrow"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span>
                     </div>
                   </div>
@@ -243,6 +234,7 @@
                     <span aria-hidden="true">♥</span><b data-like-count>{{ dish.likes_count }}</b>
                   </button>
                 </article>
+                {% endwith %}
                 {% endif %}
               {% endfor %}
             </div>
@@ -341,7 +333,7 @@
           </div>
           <div class="tag-block"><span>✦</span><b data-i18n data-uz="Yangi tayyorlanadi" data-ru="Готовим свежим">Yangi tayyorlanadi</b></div>
         </div>
-        <h3 data-i18n data-uz="Taom haqida" data-ru="О блюде">Taom haqida</h3>
+        <h3 class="sheet-description-title" data-i18n data-uz="Taom haqida" data-ru="О блюде">Taom haqida</h3>
         <p class="sheet-description"></p>
         <button class="sheet-like-button" type="button" data-sheet-like aria-pressed="false"><span>♥</span><b data-i18n data-uz="Yoqdi" data-ru="Нравится">Yoqdi</b><i data-sheet-like-count>0</i></button>
       </div>

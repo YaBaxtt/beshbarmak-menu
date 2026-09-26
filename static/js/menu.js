@@ -22,8 +22,12 @@
   const sheetCategory = document.querySelector(".sheet-category");
   const sheetTitle = document.getElementById("sheet-title");
   const sheetPrice = document.querySelector(".sheet-price");
+  const sheetPriceRow = document.querySelector(".sheet-price-row");
   const sheetStatus = document.querySelector(".sheet-status");
   const sheetWeight = document.querySelector(".sheet-weight");
+  const portionBlock = document.querySelector(".portion-block");
+  const sheetDetails = document.querySelector(".sheet-details");
+  const sheetDescriptionTitle = document.querySelector(".sheet-description-title");
   const sheetDescription = document.querySelector(".sheet-description");
   const lightbox = document.querySelector(".photo-lightbox");
   const lightboxImage = lightbox?.querySelector("img");
@@ -159,6 +163,9 @@
     const images = dish.images || [];
     gallery.replaceChildren();
     galleryDots.replaceChildren();
+    sheet.classList.toggle("no-gallery", images.length === 0);
+    gallery.hidden = images.length === 0;
+    galleryDots.hidden = images.length === 0;
 
     if (images.length) {
       images.forEach((src, index) => {
@@ -174,19 +181,22 @@
           galleryDots.appendChild(dot);
         }
       });
-    } else {
-      const placeholder = document.createElement("div");
-      placeholder.className = "image-placeholder";
-      placeholder.innerHTML = `<span>✦</span><small>${currentLang === "uz" ? "Rasm tez orada" : "Фото скоро"}</small>`;
-      gallery.appendChild(placeholder);
     }
 
     gallery.scrollLeft = 0;
     sheetCategory.textContent = dish[`category_${currentLang}`];
     sheetTitle.textContent = dish[`name_${currentLang}`];
-    sheetPrice.innerHTML = `${formatPrice(dish.price)} <small>so‘m</small>`;
-    sheetDescription.textContent = dish[`description_${currentLang}`];
-    sheetWeight.textContent = dish.weight || (currentLang === "uz" ? "Ko‘rsatilmagan" : "Не указано");
+    const hasPrice = dish.price !== null && dish.price !== undefined;
+    const description = dish[`description_${currentLang}`] || "";
+    sheetPrice.hidden = !hasPrice;
+    if (hasPrice) sheetPrice.innerHTML = `${formatPrice(dish.price)} <small>so‘m</small>`;
+    if (sheetPriceRow) sheetPriceRow.hidden = !hasPrice && dish.available;
+    sheetDescription.textContent = description;
+    sheetDescription.hidden = !description;
+    if (sheetDescriptionTitle) sheetDescriptionTitle.hidden = !description;
+    sheetWeight.textContent = dish.weight || "";
+    if (portionBlock) portionBlock.hidden = !dish.weight;
+    if (sheetDetails) sheetDetails.classList.toggle("single", !dish.weight);
     sheetStatus.textContent = dish.available ? "" : (currentLang === "uz" ? "● Hozir mavjud emas" : "● Сейчас нет");
     sheetStatus.hidden = dish.available;
     sheetStatus.classList.toggle("unavailable", !dish.available);

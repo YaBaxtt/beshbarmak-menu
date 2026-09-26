@@ -40,7 +40,7 @@ const path = require("path");
       throw new Error(`Horizontal overflow at ${width}px: ${dimensions.scroll} > ${dimensions.viewport}`);
     }
     if (dimensions.cards < 20) throw new Error(`Expected the expanded menu, found only ${dimensions.cards} cards`);
-    if (!(await page.locator("#promotions .promotion-card").count())) throw new Error("Promotions section is missing");
+    if (await page.locator(".complaint-entry").count()) throw new Error("Complaint button must only be inside the mobile drawer");
     if (await page.locator(".available-status").count()) throw new Error("Artificial availability badges are still visible");
     if (dimensions.reservationCtas < 2) throw new Error(`Expected reservation CTAs, found ${dimensions.reservationCtas}`);
     const smallTarget = dimensions.touchTargets.find((target) => target.width < 40 || target.height < 40);
@@ -72,21 +72,12 @@ const path = require("path");
       const youtubeHref = await page.locator(".youtube-action").getAttribute("href");
       if (!youtubeHref?.includes("youtube.com")) throw new Error("YouTube action URL is missing");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-actions.png"), fullPage: false });
-      const promotionLayout = await page.locator("[data-promotion-track]").evaluate((track) => ({
-        cards: track.querySelectorAll("[data-promotion-card]").length,
-        scrollable: track.scrollWidth > track.clientWidth,
-        topSpread: Math.max(...[...track.querySelectorAll("[data-promotion-card]")].map((card) => card.offsetTop)) - Math.min(...[...track.querySelectorAll("[data-promotion-card]")].map((card) => card.offsetTop)),
-      }));
-      if (promotionLayout.cards < 3 || !promotionLayout.scrollable || promotionLayout.topSpread > 2) throw new Error(`Promotion carousel layout is invalid: ${JSON.stringify(promotionLayout)}`);
-      await page.locator('[data-promotion-dot="0"]').click();
-      await page.waitForTimeout(5200);
-      if ((await page.locator('[data-promotion-dot][aria-current="true"]').getAttribute("data-promotion-dot")) !== "1") throw new Error("Promotion did not advance automatically after five seconds");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-home.png"), fullPage: false });
       await page.locator('[data-lang="ru"]').click();
       await page.locator("[data-nav-open]").first().click();
       await page.locator(".nav-drawer.open").waitFor();
       await page.waitForTimeout(380);
-      for (const label of ["Акции", "О ресторане", "Частые вопросы", "Контакты", "Написать отзыв", "Отправить жалобу", "Написать в поддержку"]) {
+      for (const label of ["О ресторане", "Частые вопросы", "Контакты", "Написать отзыв", "Отправить жалобу", "Написать в поддержку"]) {
         if (!(await page.getByText(label, { exact: true }).count())) throw new Error(`Drawer item is missing: ${label}`);
       }
       const routeHref = await page.locator(".drawer-place > a").getAttribute("href");
@@ -103,39 +94,40 @@ const path = require("path");
       await page.locator('[data-lang="uz"]').click();
       const uzbekReservationHref = await page.locator(".top-reservation").getAttribute("href");
       if (!uzbekReservationHref?.includes("lang=uz")) throw new Error("Reservation link did not inherit UZ language");
-      await page.locator("#dish-search").fill("Manti");
+      await page.locator("#dish-search").fill("Beshbarmoq");
       const searchVisible = await page.locator(".dish-card:visible").count();
       if (searchVisible !== 1) throw new Error(`Search returned ${searchVisible} dishes instead of 1`);
       await page.locator(".search-clear").click();
 
-      await page.locator('.category-chip[data-category="shorvalar"]').click();
-      const soupVisible = await page.locator(".dish-card:visible").count();
-      if (soupVisible !== 3) throw new Error(`Soup filter returned ${soupVisible} dishes instead of 3`);
+      await page.locator('.category-chip[data-category="salatlar"]').click();
+      const saladVisible = await page.locator(".dish-card:visible").count();
+      if (saladVisible !== 8) throw new Error(`Salad filter returned ${saladVisible} dishes instead of 8`);
       await page.locator('.category-chip[data-category="all"]').click();
+      await page.locator('[data-menu-section="beshbarmoq"]').scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-catalog.png"), fullPage: false });
 
-      const likeButton = page.locator('.dish-card[data-dish-id="1"] .dish-like-button');
+      const firstDish = page.locator(".dish-card").first();
+      const dishId = await firstDish.getAttribute("data-dish-id");
+      const likeButton = firstDish.locator(".dish-like-button");
       const likesBefore = Number(await likeButton.locator("[data-like-count]").textContent());
       await Promise.all([
-        page.waitForResponse((response) => response.url().includes("/dish/1/like/") && response.request().method() === "POST"),
+        page.waitForResponse((response) => response.url().includes(`/dish/${dishId}/like/`) && response.request().method() === "POST"),
         likeButton.click(),
       ]);
       if (!(await likeButton.getAttribute("class")).includes("liked")) throw new Error("Dish like did not become active");
       if (Number(await likeButton.locator("[data-like-count]").textContent()) !== likesBefore + 1) throw new Error("Dish like counter did not increase");
       await Promise.all([
-        page.waitForResponse((response) => response.url().includes("/dish/1/like/") && response.request().method() === "POST"),
+        page.waitForResponse((response) => response.url().includes(`/dish/${dishId}/like/`) && response.request().method() === "POST"),
         likeButton.click(),
       ]);
       if ((await likeButton.getAttribute("class")).includes("liked")) throw new Error("Second like click did not remove the like");
 
-      await page.locator('.dish-card[data-dish-id="1"]').click();
+      await firstDish.click();
       await page.locator(".dish-sheet.open").waitFor();
       const title = await page.locator("#sheet-title").textContent();
-      if (title !== "Beshbarmak") throw new Error(`Bottom sheet title mismatch: ${title}`);
-      await page.locator(".sheet-gallery img").first().click();
-      await page.locator(".photo-lightbox.open").waitFor();
-      const lightboxFit = await page.locator(".photo-lightbox img").evaluate((node) => getComputedStyle(node).objectFit);
-      if (lightboxFit !== "contain") throw new Error(`Full photo uses ${lightboxFit} instead of contain`);
-      await page.locator(".photo-lightbox-close").click();
+      if (title !== "Beshbarmoq") throw new Error(`Bottom sheet title mismatch: ${title}`);
+      if (await page.locator(".sheet-price:visible").count()) throw new Error("Price is displayed for Beshbarmoq even though none was supplied");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390.png"), fullPage: false });
       await page.locator(".sheet-close").click();
       await page.locator(".dish-sheet:not(.open)").waitFor();
