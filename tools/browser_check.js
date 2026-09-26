@@ -112,6 +112,13 @@ const path = require("path");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-catalog.png"), fullPage: false });
 
       const firstDish = page.locator(".dish-card").first();
+      const cardLayout = await firstDish.evaluate((card) => {
+        const title = card.querySelector("h3").getBoundingClientRect();
+        const description = card.querySelector("p").getBoundingClientRect();
+        const like = card.querySelector(".dish-like-button").getBoundingClientRect();
+        return { titleBottom: title.bottom, descriptionBottom: description.bottom, likeTop: like.top };
+      });
+      if (cardLayout.likeTop < cardLayout.descriptionBottom - 1) throw new Error(`Dish like is not below the description: ${JSON.stringify(cardLayout)}`);
       const dishId = await firstDish.getAttribute("data-dish-id");
       const likeButton = firstDish.locator(".dish-like-button");
       const likesBefore = Number(await likeButton.locator("[data-like-count]").textContent());
@@ -129,9 +136,13 @@ const path = require("path");
 
       await firstDish.click();
       await page.locator(".dish-sheet.open").waitFor();
+      await page.waitForTimeout(420);
       const title = await page.locator("#sheet-title").textContent();
       if (title !== "Beshbarmoq") throw new Error(`Bottom sheet title mismatch: ${title}`);
       if (await page.locator(".sheet-price:visible").count()) throw new Error("Price is displayed for Beshbarmoq even though none was supplied");
+      if (await page.locator(".sheet-details:visible").count()) throw new Error("Empty portion or badge details are visible");
+      if (!(await page.locator(".sheet-description:visible").count())) throw new Error("Dish description is missing");
+      if ((await page.locator(".sheet-actions > *:visible").count()) !== 3) throw new Error("Dish actions are incomplete");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390.png"), fullPage: false });
       await page.locator(".sheet-close").click();
       await page.locator(".dish-sheet:not(.open)").waitFor();

@@ -26,6 +26,8 @@
   const sheetStatus = document.querySelector(".sheet-status");
   const sheetWeight = document.querySelector(".sheet-weight");
   const portionBlock = document.querySelector(".portion-block");
+  const tagBlock = document.querySelector(".tag-block");
+  const sheetTag = document.querySelector(".sheet-tag");
   const sheetDetails = document.querySelector(".sheet-details");
   const sheetDescriptionTitle = document.querySelector(".sheet-description-title");
   const sheetDescription = document.querySelector(".sheet-description");
@@ -196,7 +198,16 @@
     if (sheetDescriptionTitle) sheetDescriptionTitle.hidden = !description;
     sheetWeight.textContent = dish.weight || "";
     if (portionBlock) portionBlock.hidden = !dish.weight;
-    if (sheetDetails) sheetDetails.classList.toggle("single", !dish.weight);
+    const tag = dish.recommended
+      ? (currentLang === "uz" ? "Tavsiya qilamiz" : "Рекомендуем")
+      : (dish.popular ? (currentLang === "uz" ? "Ko‘p tanlanadi" : "Популярное блюдо") : "");
+    if (sheetTag) sheetTag.textContent = tag;
+    if (tagBlock) tagBlock.hidden = !tag;
+    if (sheetDetails) {
+      const visibleDetailCount = Number(Boolean(dish.weight)) + Number(Boolean(tag));
+      sheetDetails.hidden = visibleDetailCount === 0;
+      sheetDetails.classList.toggle("single", visibleDetailCount === 1);
+    }
     sheetStatus.textContent = dish.available ? "" : (currentLang === "uz" ? "● Hozir mavjud emas" : "● Сейчас нет");
     sheetStatus.hidden = dish.available;
     sheetStatus.classList.toggle("unavailable", !dish.available);
@@ -382,6 +393,10 @@
     reviewsMore.hidden = true;
   });
 
+  document.querySelectorAll("[data-sheet-action]").forEach((link) => {
+    link.addEventListener("click", closeSheet);
+  });
+
   sheetClose?.addEventListener("click", closeSheet);
   overlay?.addEventListener("click", closeSheet);
   document.addEventListener("keydown", (event) => {
@@ -391,7 +406,7 @@
     }
     if (event.key === "Escape") closeSheet();
     if (event.key === "Tab" && sheet.classList.contains("open")) {
-      const focusable = [...sheet.querySelectorAll("button, [tabindex='0']")];
+      const focusable = [...sheet.querySelectorAll("button, a[href], [tabindex='0']")];
       if (!focusable.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];

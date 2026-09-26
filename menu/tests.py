@@ -52,11 +52,24 @@ class MenuTests(TestCase):
         self.assertEqual(Dish.objects.get(name_uz="Norin — 1 kg + 3 dona qazi").price, 155000)
         self.assertIsNone(Dish.objects.get(name_uz="Beshbarmoq").price)
         self.assertFalse(Dish.objects.exclude(images=None).exists())
+        self.assertFalse(Dish.objects.filter(description_uz="").exists())
+        self.assertFalse(Dish.objects.filter(description_ru="").exists())
 
     def test_demo_seed_is_idempotent(self):
         counts = (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count())
+        dish = Dish.objects.get(name_uz="Beshbarmoq")
+        dish.price = 987654
+        dish.weight = "Restoran kiritgan porsiya"
+        dish.is_popular = True
+        dish.description_uz = "Restoran yozgan maxsus tavsif"
+        dish.save(update_fields=("price", "weight", "is_popular", "description_uz"))
         call_command("seed_demo")
         self.assertEqual(counts, (Category.objects.count(), Dish.objects.count(), Promotion.objects.count(), RestaurantSettings.objects.count()))
+        dish.refresh_from_db()
+        self.assertEqual(dish.price, 987654)
+        self.assertEqual(dish.weight, "Restoran kiritgan porsiya")
+        self.assertTrue(dish.is_popular)
+        self.assertEqual(dish.description_uz, "Restoran yozgan maxsus tavsif")
 
     def test_unavailable_dish_stays_visible(self):
         dish = Dish.objects.first()

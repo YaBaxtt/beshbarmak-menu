@@ -18,36 +18,36 @@ CATEGORIES = [
 ]
 
 DISHES = [
-    ("beshbarmoq", "Beshbarmoq", "Бешбармак", "", "", None),
-    ("norin", "Norin — porsiya", "Нарын — порция", "", "", 50000),
-    ("norin", "Norin — 1 kg + 3 dona qazi", "Нарын — 1 кг + 3 казы", "", "", 155000),
-    ("shashliklar", "Qiyma shashlik", "Шашлык из фарша", "", "", None),
-    ("shashliklar", "Ot jaz shashlik", "Шашлык «От жаз»", "", "", None),
-    ("baliq", "Baliq (dona)", "Рыба (штука)", "", "", None),
-    ("baliq", "Baliq — 1 kg dan yuqori", "Рыба — свыше 1 кг", "", "", None),
-    ("baliq", "Baliq — 2 kg dan yuqori", "Рыба — свыше 2 кг", "", "", None),
-    ("salatlar", "Svejiy", "Свежий", "", "", None),
-    ("salatlar", "Achiq-chuchuk", "Ачичук", "", "", None),
-    ("salatlar", "Morskoy kapriz", "Морской каприз", "", "", None),
-    ("salatlar", "Yaponskiy", "Японский", "", "", None),
-    ("salatlar", "Chiroqchi", "Чирокчи", "", "", None),
-    ("salatlar", "Suzma", "Сузьма", "", "", None),
-    ("salatlar", "Smak", "Смак", "", "", None),
-    ("salatlar", "Sezar", "Цезарь", "", "", None),
-    ("ichimliklar", "Choy", "Чай", "", "", None),
-    ("ichimliklar", "Limonli choy", "Чай с лимоном", "", "", None),
-    ("ichimliklar", "Coca-Cola 1 L", "Coca-Cola 1 л", "", "", None),
-    ("ichimliklar", "Coca-Cola 1,5 L", "Coca-Cola 1,5 л", "", "", None),
-    ("ichimliklar", "Pepsi 1 L", "Pepsi 1 л", "", "", None),
-    ("ichimliklar", "Pepsi 1,5 L", "Pepsi 1,5 л", "", "", None),
-    ("ichimliklar", "Fanta 1 L", "Fanta 1 л", "", "", None),
-    ("ichimliklar", "Fanta 1,5 L", "Fanta 1,5 л", "", "", None),
-    ("ichimliklar", "Gazsiz suv 1 L", "Вода без газа 1 л", "", "", None),
-    ("ichimliklar", "Gazli suv 1 L", "Газированная вода 1 л", "", "", None),
-    ("ichimliklar", "Chortoq", "Чартак", "", "", None),
-    ("ichimliklar", "Moxito", "Мохито", "", "", None),
-    ("ichimliklar", "Moxito 1 L", "Мохито 1 л", "", "", None),
-    ("ichimliklar", "Kokteyl", "Коктейль", "", "", None),
+    ("beshbarmoq", "Beshbarmoq", "Бешбармак", "Mayin go‘sht, yupqa xamir va xushbo‘y sho‘rva uyg‘unligidagi an’anaviy taom.", "Традиционное блюдо с нежным мясом, тонким тестом и ароматным бульоном.", None),
+    ("norin", "Norin — porsiya", "Нарын — порция", "Mayda kesilgan xamir va go‘shtdan tayyorlanadigan to‘yimli milliy taom.", "Сытное национальное блюдо из тонко нарезанного теста и мяса.", 50000),
+    ("norin", "Norin — 1 kg + 3 dona qazi", "Нарын — 1 кг + 3 казы", "Katta davra uchun norin va uch dona qazi bilan mo‘l to‘plam.", "Большой набор нарына с тремя казы — удобно для дружной компании.", 155000),
+    ("shashliklar", "Qiyma shashlik", "Шашлык из фарша", "Mayin qiyma va ziravorlardan tayyorlanib, ochiq olovda pishiriladi.", "Сочный шашлык из нежного фарша со специями, приготовленный на открытом огне.", None),
+    ("shashliklar", "Ot jaz shashlik", "Шашлык «От жаз»", "Ochiq olovda qizartirib pishiriladigan, to‘yimli va xushbo‘y shashlik.", "Сытный и ароматный шашлык, поджаренный на открытом огне.", None),
+    ("baliq", "Baliq (dona)", "Рыба (штука)", "Buyurtma uchun alohida tayyorlanadigan, tashqi qismi qarsildoq baliq.", "Рыба, приготовленная отдельно для заказа, с аппетитной хрустящей корочкой.", None),
+    ("baliq", "Baliq — 1 kg dan yuqori", "Рыба — свыше 1 кг", "Katta davra uchun 1 kg dan yuqori baliq, buyurtma asosida pishiriladi.", "Рыба весом свыше 1 кг для компании, готовится под заказ.", None),
+    ("baliq", "Baliq — 2 kg dan yuqori", "Рыба — свыше 2 кг", "Katta mehmonlar davrasi uchun 2 kg dan yuqori baliq.", "Рыба весом свыше 2 кг для большого стола и дружной компании.", None),
+    ("salatlar", "Svejiy", "Свежий", "Yangi mahsulotlardan tayyorlanadigan yengil va tetiklantiruvchi salat.", "Лёгкий и освежающий салат из свежих продуктов.", None),
+    ("salatlar", "Achiq-chuchuk", "Ачичук", "Pomidor, piyoz va ziravorlar uyg‘unligidagi sharqona salat.", "Восточный салат с помидорами, луком и ароматными специями.", None),
+    ("salatlar", "Morskoy kapriz", "Морской каприз", "Dengiz ta’mlarini yoqtiradiganlar uchun mayin va to‘yimli salat.", "Нежный и сытный салат для любителей морских вкусов.", None),
+    ("salatlar", "Yaponskiy", "Японский", "Sharqona ohangdagi yengil va o‘ziga xos salat.", "Лёгкий салат с выразительным восточным характером.", None),
+    ("salatlar", "Chiroqchi", "Чирокчи", "Milliy ta’m va yangi masalliqlar uyg‘unligidagi salat.", "Салат, в котором сочетаются национальный вкус и свежие продукты.", None),
+    ("salatlar", "Suzma", "Сузьма", "Mayin suzma va ko‘katlar bilan tayyorlanadigan yengil gazak.", "Лёгкая закуска из нежной сузьмы со свежей зеленью.", None),
+    ("salatlar", "Smak", "Смак", "To‘yimli, mayin va muvozanatli ta’mga ega salat.", "Сытный салат с нежным и сбалансированным вкусом.", None),
+    ("salatlar", "Sezar", "Цезарь", "Qarsildoq salat barglari va mayin sous uyg‘unligidagi mashhur salat.", "Популярный салат с хрустящими листьями и нежным соусом.", None),
+    ("ichimliklar", "Choy", "Чай", "Dasturxonga issiq tortiladigan klassik xushbo‘y choy.", "Классический ароматный чай, который подаётся горячим.", None),
+    ("ichimliklar", "Limonli choy", "Чай с лимоном", "Limonning yengil nordonligi bilan xushbo‘y issiq choy.", "Ароматный горячий чай с лёгкой лимонной кислинкой.", None),
+    ("ichimliklar", "Coca-Cola 1 L", "Coca-Cola 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", None),
+    ("ichimliklar", "Coca-Cola 1,5 L", "Coca-Cola 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", None),
+    ("ichimliklar", "Pepsi 1 L", "Pepsi 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", None),
+    ("ichimliklar", "Pepsi 1,5 L", "Pepsi 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", None),
+    ("ichimliklar", "Fanta 1 L", "Fanta 1 л", "Mevali ta’mga ega 1 litrlik gazli ichimlik.", "Газированный напиток с ярким фруктовым вкусом, 1 литр.", None),
+    ("ichimliklar", "Fanta 1,5 L", "Fanta 1,5 л", "Davra uchun mevali ta’mga ega 1,5 litrlik gazli ichimlik.", "Фруктовый газированный напиток объёмом 1,5 литра для компании.", None),
+    ("ichimliklar", "Gazsiz suv 1 L", "Вода без газа 1 л", "Kundalik ichish uchun toza gazsiz suv.", "Чистая негазированная вода для ежедневного питья.", None),
+    ("ichimliklar", "Gazli suv 1 L", "Газированная вода 1 л", "Yengil va tetiklantiruvchi gazli suv.", "Лёгкая и освежающая газированная вода.", None),
+    ("ichimliklar", "Chortoq", "Чартак", "O‘ziga xos mineral ta’mga ega Chortoq suvi.", "Вода «Чартак» с характерным минеральным вкусом.", None),
+    ("ichimliklar", "Moxito", "Мохито", "Yalpiz va sitrus ohanglari uyg‘unligidagi tetiklantiruvchi ichimlik.", "Освежающий напиток с нотами мяты и цитруса.", None),
+    ("ichimliklar", "Moxito 1 L", "Мохито 1 л", "Davra uchun yalpiz va sitrus ta’mli 1 litrlik moxito.", "Литр освежающего мохито с мятой и цитрусом для компании.", None),
+    ("ichimliklar", "Kokteyl", "Коктейль", "Mayin ta’mli, tetiklantiruvchi sovuq kokteyl.", "Освежающий холодный коктейль с мягким вкусом.", None),
 ]
 
 PROMOTIONS = []
@@ -70,7 +70,7 @@ class Command(BaseCommand):
         menu_dish_ids = []
         for order, item in enumerate(DISHES, start=1):
             slug, uz, ru, desc_uz, desc_ru, price = item
-            dish, _ = Dish.objects.update_or_create(
+            dish, created = Dish.objects.get_or_create(
                 category=categories[slug],
                 name_uz=uz,
                 defaults={
@@ -85,6 +85,19 @@ class Command(BaseCommand):
                     "sort_order": order,
                 },
             )
+            if not created:
+                # Editorial refreshes must never overwrite prices, portions,
+                # availability flags, photos or custom copy managed by the restaurant.
+                dish.name_ru = ru
+                dish.sort_order = order
+                update_fields = ["name_ru", "sort_order"]
+                if not dish.description_uz:
+                    dish.description_uz = desc_uz
+                    update_fields.append("description_uz")
+                if not dish.description_ru:
+                    dish.description_ru = desc_ru
+                    update_fields.append("description_ru")
+                dish.save(update_fields=update_fields)
             menu_dish_ids.append(dish.pk)
 
         # Keep the command idempotent while removing the previous demo menu.

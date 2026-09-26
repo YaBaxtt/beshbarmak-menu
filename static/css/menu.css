@@ -381,27 +381,25 @@ img { display: block; max-width: 100%; }
 .popular-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 12px; }
 .popular-name { overflow: hidden; font-family: "Playfair Display", serif; font-size: 15px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .popular-price { color: var(--clay); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.popular-copy .dish-like-button { grid-column: 1 / -1; justify-self: start; }
 .popular-price small, .price small { font-size: 8px; font-weight: 700; }
 .card-open { position: absolute; z-index: 1; inset: 0; width: 100%; padding: 0; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
 .card-open:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
 .dish-like-button {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  top: 8px;
-  right: 8px;
   display: inline-flex;
-  min-width: 42px;
-  height: 32px;
-  padding: 0 10px;
+  min-width: 36px;
+  height: 29px;
+  padding: 0 8px;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border: 1px solid rgba(255,255,255,.5);
+  border: 1px solid rgba(139,65,41,.13);
   border-radius: 999px;
-  color: #fff;
-  background: rgba(34,22,15,.58);
-  box-shadow: 0 4px 14px rgba(0,0,0,.15);
-  backdrop-filter: blur(8px);
+  color: #8b4129;
+  background: #f6ead9;
+  box-shadow: none;
   cursor: pointer;
   transition: transform .18s ease, color .18s ease, background .18s ease;
 }
@@ -443,11 +441,11 @@ img { display: block; max-width: 100%; }
 .dish-card.text-only { min-height: 104px; background: linear-gradient(145deg,#fffaf2,#f4e7d5); }
 .dish-card.text-only::before { position: absolute; right: -16px; bottom: -25px; width: 78px; height: 78px; border: 1px solid rgba(146,72,43,.09); border-radius: 50%; content: ""; }
 .dish-card.text-only .dish-copy { display: flex; min-height: 104px; padding: 18px 14px 14px; flex-direction: column; justify-content: space-between; }
-.dish-card.text-only .dish-copy h3 { min-height: 0; padding-right: 52px; font-size: 17px; line-height: 1.22; }
+.dish-card.text-only .dish-copy h3 { min-height: 0; font-size: 17px; line-height: 1.22; }
 .dish-card.text-only .dish-copy p { min-height: 0; margin: 7px 0; }
-.dish-card.text-only .dish-meta { margin-top: 13px; justify-content: flex-end; }
+.dish-card.text-only .dish-meta { margin-top: 13px; }
 .dish-card.text-only .price { margin-right: auto; }
-.dish-card.text-only .dish-like-button { color: #8b4129; border-color: rgba(139,65,41,.13); background: rgba(255,250,242,.9); box-shadow: 0 4px 12px rgba(74,38,22,.08); }
+.dish-card.text-only .dish-like-button { margin-left:auto; color: #8b4129; border-color: rgba(139,65,41,.13); background: rgba(255,250,242,.9); box-shadow: 0 4px 12px rgba(74,38,22,.08); }
 .dish-card.text-only .dish-like-button.liked { color: #fff; border-color: #d83843; background: #d83843; }
 .dish-image { position: relative; height: 125px; overflow: hidden; background: #e5dac9; }
 .image-placeholder { display: flex; width: 100%; height: 100%; align-items: center; flex-direction: column; justify-content: center; gap: 7px; color: #9c7a52; background: linear-gradient(145deg, #e7d8c4, #f6eddf); }
@@ -572,8 +570,10 @@ img { display: block; max-width: 100%; }
 .sheet-status.unavailable { color: var(--red); background: #f5e3e0; }
 .sheet-divider { height: 1px; margin: 22px 0; background: rgba(99,48,31,.1); }
 .sheet-details { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.sheet-details[hidden] { display: none; }
 .sheet-details.single { grid-template-columns: 1fr; }
-.portion-block, .tag-block { display: flex; align-items: center; min-width: 0; gap: 9px; min-height: 58px; padding: 10px; border-radius: 14px; background: #f3e8d8; }
+.portion-block, .tag-block { display: flex; align-items: center; min-width: 0; gap: 9px; min-height: 62px; padding: 10px; border: 1px solid rgba(143,71,48,.12); border-radius: 12px; background: linear-gradient(135deg,#fff8ed,#efdfc9); box-shadow: 0 6px 16px rgba(73,43,26,.05); }
+.portion-block[hidden], .tag-block[hidden] { display: none; }
 .portion-block > span, .tag-block > span { display: grid; flex: 0 0 33px; width: 33px; height: 33px; place-items: center; border-radius: 10px; color: var(--clay); background: #fff9ef; }
 .portion-block svg { width: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .portion-block div { display: flex; min-width: 0; flex-direction: column; }
@@ -581,8 +581,13 @@ img { display: block; max-width: 100%; }
 .portion-block b, .tag-block b { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .sheet-content h3 { margin: 25px 0 8px; font-family: "Playfair Display", serif; font-size: 19px; }
 .sheet-description { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
-.sheet-like-button { display: inline-flex; min-height: 44px; margin-top: 22px; padding: 0 16px; align-items: center; gap: 8px; border: 1px solid rgba(99,48,31,.14); border-radius: 999px; color: var(--brown); background: #f3e8d8; cursor: pointer; font-size: 11px; }
+.sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 24px; }
+.sheet-like-button { display: inline-flex; grid-column: 1 / -1; min-height: 48px; margin: 0; padding: 0 16px; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(99,48,31,.14); border-radius: 10px; color: var(--brown); background: #f3e8d8; cursor: pointer; font-size: 11px; }
 .sheet-like-button span { color: #b4a494; font-size: 19px; transition: color .18s,transform .18s; }
+.sheet-action { display: flex; min-height: 50px; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid rgba(99,48,31,.14); border-radius: 10px; font-size: 10px; text-align: center; }
+.sheet-action span { font-size: 18px; }
+.sheet-action.review { color: var(--brown); background: #fff8ed; }
+.sheet-action.reserve { color: #fff; border-color: var(--brown); background: var(--brown); box-shadow: 0 8px 20px rgba(91,45,29,.16); }
 .sheet-like-button b { font-size: 11px; }
 .sheet-like-button i { min-width: 20px; padding: 3px 6px; border-radius: 99px; background: rgba(99,48,31,.08); font-size: 9px; font-style: normal; }
 .sheet-like-button.liked span { color: #d83843; transform: scale(1.12); }
@@ -730,11 +735,11 @@ body.lightbox-open { overflow:hidden; }
   .review-card header { grid-template-columns:34px minmax(0,1fr); }
   .review-card header i { grid-column:2; }
   .dish-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-  .dish-card.text-only,.dish-card.text-only .dish-copy { min-height:132px; }
+  .dish-card.text-only,.dish-card.text-only .dish-copy { min-height:166px; }
   .dish-card.text-only .dish-copy { padding:14px 10px 10px; }
-  .dish-card.text-only .dish-copy h3 { padding-right:35px; font-size:14px; line-height:1.18; overflow-wrap:anywhere; }
+  .dish-card.text-only .dish-copy h3 { padding-right:0; font-size:14px; line-height:1.18; overflow-wrap:anywhere; }
   .dish-card.text-only .dish-meta { margin-top:10px; }
-  .dish-card.text-only .dish-like-button { top:7px; right:7px; min-width:34px; height:28px; gap:3px; padding:0 7px; }
+  .dish-card.text-only .dish-like-button { min-width:34px; height:28px; gap:3px; padding:0 7px; }
   .dish-card.text-only .dish-like-button span { font-size:14px; }
   .dish-card.text-only .dish-like-button b { font-size:9px; }
   .card-arrow { width:24px; height:24px; }
