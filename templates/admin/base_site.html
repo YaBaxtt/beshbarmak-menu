@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}Beshbarmak boshqaruvi{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/admin-beshbarmak.css' %}?v=20260926-2">
+{% endblock %}
+
+{% block branding %}
+  <div class="besh-admin-brand">
+    <span class="besh-admin-mark">BH</span>
+    <span><b>Beshbarmak House</b><small>Restoran boshqaruv markazi</small></span>
+  </div>
+{% endblock %}
+
+{% block nav-global %}
+  <span class="besh-admin-status"><i></i> Boshqaruv paneli</span>
+{% endblock %}

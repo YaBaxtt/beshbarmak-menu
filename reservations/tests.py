@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from menu.models import RestaurantSettings
 
-from .models import DiningSpace, Reservation, ReservationAction, ReservationOccasion, RestaurantClosure, SiteVisitDaily, StaffProfile, WorkingHours
+from .models import Complaint, DiningSpace, Reservation, ReservationAction, ReservationOccasion, RestaurantClosure, SiteVisitDaily, StaffProfile, WorkingHours
 from .services import AlreadyProcessedError, AvailabilityError, AvailabilityService, ReservationService
 
 
@@ -62,9 +62,9 @@ class ModelAndAvailabilityTests(ReservationBaseTest):
             item.full_clean()
 
     def test_staff_profile_roles_and_working_hours(self):
-        self.assertEqual(self.manager.get_role_display(), "Менеджер")
+        self.assertEqual(self.manager.get_role_display(), "Administrator")
         self.assertEqual(WorkingHours.objects.count(), 7)
-        self.assertIn("Понедельник", str(WorkingHours.objects.get(day_of_week=0)))
+        self.assertIn("Dushanba", str(WorkingHours.objects.get(day_of_week=0)))
 
     def test_capacity_filter_hides_unsuitable_room(self):
         result = AvailabilityService.spaces_for(self.future_date(), time(19), 10)
@@ -370,3 +370,40 @@ class TelegramHistoryTests(ReservationBaseTest):
         self.assertEqual(parse_history_date("23.09.2026"), date(2026, 9, 23))
         self.assertEqual(parse_history_date("2026-09-23"), date(2026, 9, 23))
         self.assertIsNone(parse_history_date("ertaga"))
+
+
+class TelegramComplaintTests(ReservationBaseTest):
+    def create_complaint(self, **extra):
+        return Complaint.objects.create(
+            reason=extra.get("reason", Complaint.Reason.SERVICE),
+            space=extra.get("space", self.space),
+            place_details=extra.get("place_details", "2-xona"),
+            description=extra.get("description", "Ofitsiant uzoq vaqt kelmadi."),
+            status=extra.get("status", Complaint.Status.NEW),
+        )
+
+    def test_bot_complaints_are_paginated_newest_first(self):
+        from telegram_bot.handlers import COMPLAINT_PAGE_SIZE, _complaints_page_data
+
+        created = [self.create_complaint(description=f"Shikoyat {index}") for index in range(17)]
+        first_page, total, page, pages = _complaints_page_data("new", 1)
+        second_page, _, _, _ = _complaints_page_data("new", 2)
+        self.assertEqual(COMPLAINT_PAGE_SIZE, 15)
+        self.assertEqual((total, page, pages), (17, 1, 2))
+        self.assertEqual(first_page[0].pk, created[-1].pk)
+        self.assertEqual(second_page[-1].pk, created[0].pk)
+
+    def test_bot_can_review_and_resolve_complaint(self):
+        from telegram_bot.handlers import update_complaint_status
+
+        complaint = self.create_complaint()
+        async_to_sync(update_complaint_status)(complaint.pk, Complaint.Status.IN_REVIEW, self.manager)
+        complaint.refresh_from_db()
+        self.assertEqual(complaint.status, Complaint.Status.IN_REVIEW)
+        self.assertEqual(complaint.handled_by_staff, self.manager)
+        self.assertIsNotNone(complaint.reviewed_at)
+
+        async_to_sync(update_complaint_status)(complaint.pk, Complaint.Status.RESOLVED, self.manager)
+        complaint.refresh_from_db()
+        self.assertEqual(complaint.status, Complaint.Status.RESOLVED)
+        self.assertIsNotNone(complaint.resolved_at)

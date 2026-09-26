@@ -32,4 +32,4 @@ class SiteVisitMiddleware:
             return False
         if path.endswith("/data/"):
             return False
-        return path == "/" or path.startswith(("/about/", "/reservation/"))
+        return path == "/" or path.startswith(("/about/", "/complaint/", "/reservation/"))

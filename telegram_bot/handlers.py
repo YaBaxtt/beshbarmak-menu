@@ -14,7 +14,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
-from reservations.models import DiningSpace, Reservation, ReservationAction, ReservationOccasion, SiteVisitDaily, StaffProfile
+from reservations.models import Complaint, DiningSpace, Reservation, ReservationAction, ReservationOccasion, SiteVisitDaily, StaffProfile
 from reservations.services import AlreadyProcessedError, AvailabilityError, ReservationService
 from telegram_bot.reports import REPORT_LIMIT, build_reservation_report
 
@@ -69,10 +69,22 @@ HISTORY_LABELS = {
     "range": "Tanlangan sana oralig‘i",
 }
 
+COMPLAINT_PAGE_SIZE = 15
+COMPLAINT_STATUS_UZ = {
+    Complaint.Status.NEW: "Yangi",
+    Complaint.Status.IN_REVIEW: "Ko‘rib chiqilmoqda",
+    Complaint.Status.RESOLVED: "Hal qilindi",
+    Complaint.Status.DISMISSED: "Yopildi",
+}
 
-def main_keyboard(profile=None):
+
+def main_keyboard(profile=None, complaints_count=0):
+    complaints_label = "⚠️ Shikoyatlar"
+    if complaints_count:
+        complaints_label += f" · {complaints_count} yangi"
     rows = [
         [InlineKeyboardButton(text="🆕 Yangi arizalar", callback_data="list:new")],
+        [InlineKeyboardButton(text=complaints_label, callback_data="complaints:new:1")],
         [InlineKeyboardButton(text="📚 Arizalar tarixi", callback_data="history"), InlineKeyboardButton(text="📊 Statistika", callback_data="stats")],
         [InlineKeyboardButton(text="🏠 Zallar va xonalar", callback_data="spaces")],
     ]
@@ -141,6 +153,11 @@ def get_reservation(pk):
     return item
 
 
+@sync_to_async(thread_sensitive=True)
+def new_complaints_count():
+    return Complaint.objects.filter(status=Complaint.Status.NEW).count()
+
+
 def _occasion_labels(items):
     codes = {item.occasion for item in items if item.occasion}
     labels = dict(ReservationOccasion.objects.filter(code__in=codes).values_list("code", "name_uz"))
@@ -176,7 +193,8 @@ def action_keyboard(pk):
 async def start(message: Message):
     profile = await require_profile(message)
     if profile:
-        await message.answer("🍽 <b>Beshbarmak boshqaruvi</b>\n\nKerakli bo‘limni tanlang:", parse_mode="HTML", reply_markup=main_keyboard(profile))
+        complaint_count = await new_complaints_count()
+        await message.answer("🍽 <b>Beshbarmak boshqaruvi</b>\n\nKerakli bo‘limni tanlang:", parse_mode="HTML", reply_markup=main_keyboard(profile, complaint_count))
 
 
 @router.callback_query(F.data == "home")
@@ -185,7 +203,8 @@ async def home(callback: CallbackQuery, state: FSMContext):
     if not profile:
         return
     await state.clear()
-    await callback.message.answer("🍽 <b>Bosh menyu</b>", parse_mode="HTML", reply_markup=main_keyboard(profile))
+    complaint_count = await new_complaints_count()
+    await callback.message.answer("🍽 <b>Bosh menyu</b>", parse_mode="HTML", reply_markup=main_keyboard(profile, complaint_count))
     await callback.answer()
 
 
@@ -387,6 +406,181 @@ async def listing(callback: CallbackQuery):
         keyboard = action_keyboard(item.pk) if item.status == Reservation.Status.PENDING else back_keyboard()
         await callback.message.answer(detail_text(item), parse_mode="HTML", reply_markup=keyboard)
     await callback.answer()
+
+
+def _complaints_page_data(kind, page=1):
+    queryset = Complaint.objects.select_related("space", "handled_by_staff__user")
+    if kind == "new":
+        queryset = queryset.filter(status=Complaint.Status.NEW)
+    elif kind != "all":
+        raise ValueError("Noma’lum shikoyat filtri")
+    queryset = queryset.order_by("-created_at", "-pk")
+    total = queryset.count()
+    pages = max(1, ceil(total / COMPLAINT_PAGE_SIZE))
+    page = min(max(int(page), 1), pages)
+    start = (page - 1) * COMPLAINT_PAGE_SIZE
+    return list(queryset[start:start + COMPLAINT_PAGE_SIZE]), total, page, pages
+
+
+get_complaints_page_data = sync_to_async(_complaints_page_data, thread_sensitive=True)
+
+
+@sync_to_async(thread_sensitive=True)
+def get_complaint(pk):
+    return Complaint.objects.select_related("space", "handled_by_staff__user").get(pk=pk)
+
+
+def complaint_detail_text(item):
+    created_at = timezone.localtime(item.created_at)
+    place = item.space.localized_name("uz") if item.space else "Ko‘rsatilmagan"
+    if item.place_details:
+        place = f"{place} · {item.place_details}"
+    lines = [
+        f"<b>⚠️ {html.escape(item.public_number)} · {html.escape(COMPLAINT_STATUS_UZ.get(item.status, item.status))}</b>",
+        "",
+        f"📅 {created_at:%d.%m.%Y} · 🕐 {created_at:%H:%M}",
+        f"📌 <b>Sabab:</b> {html.escape(item.localized_reason('uz'))}",
+        f"🏠 <b>Joy:</b> {html.escape(place)}",
+        "",
+        f"📝 <b>Batafsil:</b>\n{html.escape(item.description)}",
+        "",
+        "🔒 Shikoyat anonim yuborilgan — ism va telefon yig‘ilmaydi.",
+    ]
+    if item.handled_by_staff:
+        lines.append(f"👤 Mas’ul: {html.escape(str(item.handled_by_staff))}")
+    return "\n".join(lines)
+
+
+def complaints_page_text(kind, items, total, page, pages):
+    title = "Yangi shikoyatlar" if kind == "new" else "Barcha shikoyatlar"
+    lines = [f"⚠️ <b>{title}</b>", f"Jami: <b>{total}</b> · Sahifa: <b>{page}/{pages}</b>", ""]
+    if not items:
+        lines.append("Bu bo‘limda hozircha shikoyatlar yo‘q.")
+    for item in items:
+        created_at = timezone.localtime(item.created_at)
+        place = item.space.localized_name("uz") if item.space else (item.place_details or "Joy ko‘rsatilmagan")
+        lines.extend([
+            f"<b>{html.escape(item.public_number)} · {html.escape(COMPLAINT_STATUS_UZ.get(item.status, item.status))}</b>",
+            f"{created_at:%d.%m.%Y %H:%M} · {html.escape(_short(item.localized_reason('uz'), 54))}",
+            f"🏠 {html.escape(_short(place, 44))}",
+            "",
+        ])
+    return "\n".join(lines).strip()
+
+
+def complaints_page_keyboard(kind, items, page, pages):
+    rows = []
+    detail_buttons = [
+        InlineKeyboardButton(text=f"🔎 {item.public_number}", callback_data=f"complaint_detail:{item.pk}:{kind}:{page}")
+        for item in items
+    ]
+    for index in range(0, len(detail_buttons), 3):
+        rows.append(detail_buttons[index:index + 3])
+    navigation = []
+    if page > 1:
+        navigation.append(InlineKeyboardButton(text="← Oldingi", callback_data=f"complaints:{kind}:{page - 1}"))
+    if page < pages:
+        navigation.append(InlineKeyboardButton(text="Keyingi →", callback_data=f"complaints:{kind}:{page + 1}"))
+    if navigation:
+        rows.append(navigation)
+    rows.append([
+        InlineKeyboardButton(text="🆕 Yangi", callback_data="complaints:new:1"),
+        InlineKeyboardButton(text="📚 Barchasi", callback_data="complaints:all:1"),
+    ])
+    rows.append([InlineKeyboardButton(text="← Bosh menyu", callback_data="home")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def complaint_action_keyboard(item, kind, page):
+    rows = []
+    if item.status == Complaint.Status.NEW:
+        rows.append([InlineKeyboardButton(
+            text="👀 Ko‘rib chiqishga olish",
+            callback_data=f"complaint_review:{item.pk}:{kind}:{page}",
+        )])
+    if item.status in (Complaint.Status.NEW, Complaint.Status.IN_REVIEW):
+        rows.append([
+            InlineKeyboardButton(text="✅ Hal qilindi", callback_data=f"complaint_resolve:{item.pk}:{kind}:{page}"),
+            InlineKeyboardButton(text="🗑 Yopish", callback_data=f"complaint_dismiss:{item.pk}:{kind}:{page}"),
+        ])
+    rows.append([InlineKeyboardButton(text="← Shikoyatlar", callback_data=f"complaints:{kind}:{page}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+@router.callback_query(F.data.startswith("complaints:"))
+async def complaints_page(callback: CallbackQuery):
+    if not await require_profile(callback):
+        return
+    _, kind, raw_page = callback.data.split(":", 2)
+    if kind not in ("new", "all"):
+        await callback.answer("Noma’lum bo‘lim.", show_alert=True)
+        return
+    items, total, page, pages = await get_complaints_page_data(kind, raw_page)
+    await callback.message.edit_text(
+        complaints_page_text(kind, items, total, page, pages),
+        parse_mode="HTML",
+        reply_markup=complaints_page_keyboard(kind, items, page, pages),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("complaint_detail:"))
+async def complaint_detail(callback: CallbackQuery):
+    if not await require_profile(callback):
+        return
+    _, raw_pk, kind, raw_page = callback.data.split(":", 3)
+    item = await get_complaint(int(raw_pk))
+    await callback.message.edit_text(
+        complaint_detail_text(item),
+        parse_mode="HTML",
+        reply_markup=complaint_action_keyboard(item, kind, int(raw_page)),
+    )
+    await callback.answer()
+
+
+@sync_to_async(thread_sensitive=True)
+def update_complaint_status(pk, status, actor):
+    with transaction.atomic():
+        item = Complaint.objects.select_for_update().get(pk=pk)
+        now = timezone.now()
+        item.status = status
+        item.handled_by_staff = actor
+        if status == Complaint.Status.IN_REVIEW and not item.reviewed_at:
+            item.reviewed_at = now
+        if status in (Complaint.Status.RESOLVED, Complaint.Status.DISMISSED):
+            item.reviewed_at = item.reviewed_at or now
+            item.resolved_at = now
+        item.save(update_fields=("status", "handled_by_staff", "reviewed_at", "resolved_at", "updated_at"))
+        return item
+
+
+async def _change_complaint_status(callback, status, answer_text):
+    profile = await require_profile(callback)
+    if not profile:
+        return
+    _, raw_pk, kind, raw_page = callback.data.split(":", 3)
+    item = await update_complaint_status(int(raw_pk), status, profile)
+    await callback.message.edit_text(
+        complaint_detail_text(item),
+        parse_mode="HTML",
+        reply_markup=complaint_action_keyboard(item, kind, int(raw_page)),
+    )
+    await callback.answer(answer_text)
+
+
+@router.callback_query(F.data.startswith("complaint_review:"))
+async def complaint_review(callback: CallbackQuery):
+    await _change_complaint_status(callback, Complaint.Status.IN_REVIEW, "Ko‘rib chiqishga olindi")
+
+
+@router.callback_query(F.data.startswith("complaint_resolve:"))
+async def complaint_resolve(callback: CallbackQuery):
+    await _change_complaint_status(callback, Complaint.Status.RESOLVED, "Hal qilindi")
+
+
+@router.callback_query(F.data.startswith("complaint_dismiss:"))
+async def complaint_dismiss(callback: CallbackQuery):
+    await _change_complaint_status(callback, Complaint.Status.DISMISSED, "Shikoyat yopildi")
 
 
 def history_keyboard():

@@ -1,4 +1,5 @@
 import tempfile
+import uuid
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -6,7 +7,9 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from .models import Category, Dish, Promotion, RestaurantSettings
+from reservations.models import Complaint, DiningSpace
+
+from .models import Category, Dish, DishLike, Promotion, RestaurantSettings, Review
 
 
 class MenuTests(TestCase):
@@ -49,15 +52,102 @@ class MenuTests(TestCase):
         response = self.client.get(reverse("menu:home"))
         self.assertContains(response, dish.name_uz)
 
+    def test_anonymous_guest_can_like_and_unlike_a_dish(self):
+        dish = Dish.objects.first()
+        url = reverse("menu:toggle-dish-like", args=(dish.pk,))
+
+        liked = self.client.post(url)
+        self.assertEqual(liked.status_code, 200)
+        self.assertEqual(liked.json(), {"ok": True, "liked": True, "count": 1})
+        self.assertEqual(DishLike.objects.filter(dish=dish).count(), 1)
+
+        unliked = self.client.post(url)
+        self.assertEqual(unliked.status_code, 200)
+        self.assertEqual(unliked.json(), {"ok": True, "liked": False, "count": 0})
+        self.assertFalse(DishLike.objects.filter(dish=dish).exists())
+
+    def test_review_is_saved_once_and_waits_for_moderation(self):
+        token = uuid.uuid4()
+        payload = {
+            "lang": "uz",
+            "submission_token": str(token),
+            "guest_name": "Dilshod",
+            "rating": 5,
+            "text": "Taom juda mazali, xizmat ham yaxshi bo‘ldi.",
+        }
+        first = self.client.post(reverse("menu:submit-review"), payload)
+        second = self.client.post(reverse("menu:submit-review"), payload)
+        self.assertRedirects(first, f"{reverse('menu:home')}?lang=uz&review=sent#reviews", fetch_redirect_response=False)
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(Review.objects.filter(submission_token=token).count(), 1)
+        review = Review.objects.get(submission_token=token)
+        self.assertFalse(review.is_published)
+
+        hidden_page = self.client.get(reverse("menu:home"))
+        self.assertNotContains(hidden_page, review.text)
+        review.is_published = True
+        review.save(update_fields=("is_published",))
+        visible_page = self.client.get(reverse("menu:home"))
+        self.assertContains(visible_page, review.text)
+
+    def test_invalid_review_is_rejected(self):
+        response = self.client.post(reverse("menu:submit-review"), {
+            "lang": "ru", "rating": 6, "text": "Нет",
+        })
+        self.assertRedirects(response, f"{reverse('menu:home')}?lang=ru&review=invalid#review-form", fetch_redirect_response=False)
+        self.assertEqual(Review.objects.count(), 0)
+
     def test_mobile_navigation_and_information_page(self):
         response = self.client.get(reverse("menu:home"))
         self.assertContains(response, "data-nav-open")
-        self.assertContains(response, reverse("menu:info") + "#faq")
+        self.assertContains(response, reverse("menu:info") + "?lang=uz#faq")
         info = self.client.get(reverse("menu:info"))
         self.assertEqual(info.status_code, 200)
-        self.assertContains(info, "Частые вопросы")
+        self.assertContains(info, "Ko‘p beriladigan savollar")
         self.assertContains(info, "+998 97 877 24 34")
-        self.assertContains(info, "Яндекс Карты")
+        self.assertContains(info, "Yandex Xaritalarda")
+        self.assertContains(info, "Shikoyat yuborish")
+
+        russian = self.client.get(reverse("menu:info"), {"lang": "ru"})
+        self.assertContains(russian, "Частые вопросы")
+        self.assertContains(russian, "Яндекс Картах")
+        self.assertEqual(russian.cookies["site_language"].value, "ru")
+
+    def test_anonymous_complaint_is_bilingual_and_idempotent(self):
+        page = self.client.get(reverse("menu:complaint"))
+        self.assertContains(page, "Muammo haqida anonim xabar bering")
+        self.assertContains(page, "Ism va telefon raqami kerak emas")
+        russian = self.client.get(reverse("menu:complaint"), {"lang": "ru"})
+        self.assertContains(russian, "Анонимно сообщите о проблеме")
+
+        token = uuid.uuid4()
+        space = DiningSpace.objects.get(name_uz="Tapchan")
+        payload = {
+            "lang": "uz",
+            "submission_token": str(token),
+            "reason": Complaint.Reason.COLD_FOOD,
+            "space": space.pk,
+            "place_details": "4-tapchan",
+            "description": "Taom sovuq holda olib kelindi.",
+        }
+        first = self.client.post(reverse("menu:complaint"), payload)
+        second = self.client.post(reverse("menu:complaint"), payload)
+        self.assertRedirects(first, f"{reverse('menu:complaint')}?lang=uz&sent=1", fetch_redirect_response=False)
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(Complaint.objects.filter(submission_token=token).count(), 1)
+        complaint = Complaint.objects.get(submission_token=token)
+        self.assertEqual(complaint.status, Complaint.Status.NEW)
+        self.assertEqual(complaint.space, space)
+
+    def test_requested_spaces_are_seeded_with_capacity_ranges(self):
+        expected = {
+            "Stol-stulli zal": (2, 8),
+            "Katta zal": (8, 18),
+            "Oddiy xona": (1, 2),
+            "Tapchan": (6, 20),
+        }
+        rows = DiningSpace.objects.filter(name_uz__in=expected).values_list("name_uz", "capacity_min", "capacity_max")
+        self.assertEqual({name: (minimum, maximum) for name, minimum, maximum in rows}, expected)
 
     def test_only_one_restaurant_settings_record(self):
         RestaurantSettings.load()
@@ -78,11 +168,18 @@ class MenuTests(TestCase):
             reverse("admin:menu_dish_changelist"),
             reverse("admin:menu_dish_change", args=(dish.pk,)),
             reverse("admin:menu_promotion_changelist"),
+            reverse("admin:menu_review_changelist"),
+            reverse("admin:menu_dishlike_changelist"),
             reverse("admin:menu_restaurantsettings_changelist"),
+            reverse("admin:reservations_complaint_changelist"),
         )
         for url in urls:
             with self.subTest(url=url):
                 self.assertEqual(self.client.get(url).status_code, 200)
+
+        settings_page = self.client.get(reverse("admin:menu_restaurantsettings_change", args=(1,)))
+        self.assertContains(settings_page, "YouTube havolasi")
+        self.assertContains(settings_page, "Bron qilish sozlamalari")
 
     def test_missing_media_returns_404(self):
         response = self.client.get("/media/does-not-exist.webp")

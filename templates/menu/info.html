@@ -1,10 +1,60 @@
 {% load static %}
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#251710"><title>О ресторане — {{ restaurant.restaurant_name }}</title><link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="{% static 'css/info.css' %}?v=20260922-1"><link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260922-1"></head>
-<body><header class="info-header"><a class="info-brand" href="{% url 'menu:home' %}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a><nav><a href="{% url 'menu:home' %}#dishes">Меню</a><a href="{% url 'reservations:start' %}">Забронировать</a></nav><button class="nav-more-button dark" type="button" data-nav-open aria-label="Открыть меню" aria-expanded="false"><i></i><i></i><i></i></button></header>
-<main><section class="info-hero" id="about"><div><p class="info-kicker">Beshbarmak House</p><h1>Место, где собираются за одним столом</h1><p>{{ restaurant.about_ru|default:'Национальная кухня, тёплое гостеприимство и блюда, которыми хочется делиться с близкими.' }}</p><a class="info-button" href="{% url 'reservations:start' %}">Забронировать стол</a></div><div class="info-hero-image" {% if restaurant.hero_image %}style="background-image:url('{{ restaurant.hero_image.url }}')"{% else %}style="background-image:url('{% static 'images/demo/hero.webp' %}')"{% endif %}></div></section>
-<section class="contact-section" id="contacts"><div class="section-copy"><p class="info-kicker">Контакты</p><h2>Приезжайте в гости</h2><p>Построить маршрут можно сразу в Яндекс Картах. Если нужна помощь с бронированием — позвоните или напишите нам.</p></div><div class="contact-cards"><article><span>Адрес</span><h3>{{ restaurant.location_text_ru }}</h3>{% if restaurant.location_url %}<a href="{{ restaurant.location_url }}" target="_blank" rel="noopener">Открыть маршрут ↗</a>{% endif %}</article><article><span>Телефон</span><h3><a href="tel:{{ restaurant.phone|cut:' ' }}">{{ restaurant.phone }}</a></h3>{% if restaurant.telegram_url %}<a href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">Написать в Telegram ↗</a>{% endif %}</article><article><span>Время работы</span><h3>{{ restaurant.working_hours_ru }}</h3><p>Кухня и бронирование доступны в часы работы.</p></article></div></section>
-<section class="schedule-section"><p class="info-kicker">График</p><h2>Время работы</h2><div class="schedule-grid">{% for hours in working_hours %}<div><span>{{ hours.get_day_of_week_display }}</span><b>{% if hours.is_closed %}Закрыто{% else %}{{ hours.open_time|time:'H:i' }}–{{ hours.close_time|time:'H:i' }}{% endif %}</b></div>{% empty %}<div><span>Ежедневно</span><b>{{ restaurant.working_hours_ru }}</b></div>{% endfor %}</div></section>
-<section class="faq-section" id="faq"><div class="section-copy"><p class="info-kicker">Частые вопросы</p><h2>Всё важное перед визитом</h2></div><div class="faq-list"><details><summary>Нужно ли регистрироваться для бронирования?<span>+</span></summary><p>Нет. Выберите дату, время и место, оставьте имя и телефон — этого достаточно.</p></details><details><summary>Заявка сразу считается подтверждённой?<span>+</span></summary><p>Нет. Сначала менеджер проверит наличие мест. Статус обновится автоматически на странице вашей заявки.</p></details><details><summary>Можно ли отменить подтверждённую бронь?<span>+</span></summary><p>Да, если до визита остаётся больше установленного рестораном времени. Позже можно связаться с нами по телефону.</p></details><details><summary>Как забронировать стол для большой компании?<span>+</span></summary><p>Позвоните нам по номеру {{ restaurant.phone }} — менеджер подберёт подходящий зал и формат.</p></details><details><summary>Где находится ресторан?<span>+</span></summary><p>{{ restaurant.location_text_ru }}. Нажмите «Открыть маршрут», чтобы перейти в Яндекс Карты.</p></details></div></section>
-<section class="support-band"><div><p class="info-kicker">Поддержка</p><h2>Остались вопросы?</h2><p>Свяжитесь с нами — поможем с маршрутом, залом и бронированием.</p></div><div>{% if restaurant.telegram_url %}<a class="info-button light" href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">Написать в поддержку</a>{% endif %}<a class="info-button outline" href="tel:{{ restaurant.phone|cut:' ' }}">Позвонить</a></div></section></main>
-<footer class="info-footer"><a class="info-brand" href="{% url 'menu:home' %}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a><div><a href="{% url 'menu:home' %}#dishes">Меню</a><a href="{% url 'reservations:start' %}">Бронирование</a><a href="#contacts">Контакты</a><a href="#faq">Частые вопросы</a></div><p>© 2026 {{ restaurant.restaurant_name }}</p></footer>
-{% include 'partials/mobile_drawer.html' %}<script src="{% static 'js/site-nav.js' %}" defer></script></body></html>
+<!doctype html>
+<html lang="{{ language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#251710">
+  <title>{{ t.page_title }} — {{ restaurant.restaurant_name }}</title>
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/info.css' %}?v=20260926-1">
+  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
+</head>
+<body data-language="{{ language }}">
+  <header class="info-header">
+    <a class="info-brand" href="{% url 'menu:home' %}?lang={{ language }}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a>
+    <nav><a href="{% url 'menu:home' %}?lang={{ language }}#dishes">{{ t.menu }}</a><a href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.reserve }}</a></nav>
+    <div class="info-language" aria-label="Til / Язык"><a class="{% if language == 'uz' %}active{% endif %}" href="{% url 'menu:info' %}?lang=uz">UZ</a><a class="{% if language == 'ru' %}active{% endif %}" href="{% url 'menu:info' %}?lang=ru">RU</a></div>
+    <button class="nav-more-button dark" type="button" data-nav-open aria-label="{{ t.open_menu }}" aria-expanded="false"><i></i><i></i><i></i></button>
+  </header>
+
+  <main>
+    <section class="info-hero" id="about">
+      <div><p class="info-kicker">Beshbarmak House</p><h1>{{ t.about_title }}</h1><p>{{ about_text|default:t.about_fallback }}</p><a class="info-button" href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.book_table }}</a></div>
+      <div class="info-hero-image" {% if restaurant.hero_image %}style="background-image:url('{{ restaurant.hero_image.url }}')"{% else %}style="background-image:url('{% static 'images/demo/hero.webp' %}')"{% endif %}></div>
+    </section>
+
+    <section class="contact-section" id="contacts">
+      <div class="section-copy"><p class="info-kicker">{{ t.contacts_kicker }}</p><h2>{{ t.contacts_title }}</h2><p>{{ t.contacts_text }}</p></div>
+      <div class="contact-cards">
+        <article><span>{{ t.address }}</span><h3>{{ location_text }}</h3>{% if restaurant.location_url %}<a href="{{ restaurant.location_url }}" target="_blank" rel="noopener">{{ t.route }}</a>{% endif %}</article>
+        <article><span>{{ t.phone }}</span><h3><a href="tel:{{ restaurant.phone|cut:' ' }}">{{ restaurant.phone }}</a></h3>{% if restaurant.telegram_url %}<a href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">{{ t.telegram }}</a>{% endif %}</article>
+        <article><span>{{ t.working_hours }}</span><h3>{{ working_hours_text }}</h3><p>{{ t.hours_note }}</p></article>
+      </div>
+    </section>
+
+    <section class="schedule-section"><p class="info-kicker">{{ t.schedule }}</p><h2>{{ t.schedule_title }}</h2><div class="schedule-grid">{% for item in schedule %}<div><span>{{ item.label }}</span><b>{% if item.hours.is_closed %}{{ t.closed }}{% else %}{{ item.hours.open_time|time:'H:i' }}–{{ item.hours.close_time|time:'H:i' }}{% endif %}</b></div>{% empty %}<div><span>{{ t.every_day }}</span><b>{{ working_hours_text }}</b></div>{% endfor %}</div></section>
+
+    <section class="faq-section" id="faq">
+      <div class="section-copy"><p class="info-kicker">{{ t.faq_kicker }}</p><h2>{{ t.faq_title }}</h2></div>
+      <div class="faq-list">{% for item in t.faqs %}<details><summary>{{ item.0 }}<span>+</span></summary><p>{{ item.1 }}</p></details>{% endfor %}</div>
+    </section>
+
+    <section class="support-band">
+      <div><p class="info-kicker">{{ t.support_kicker }}</p><h2>{{ t.support_title }}</h2><p>{{ t.support_text }}</p></div>
+      <div><a class="info-button complaint" href="{% url 'menu:complaint' %}?lang={{ language }}">{{ t.complaint }}</a>{% if restaurant.telegram_url %}<a class="info-button light" href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">{{ t.support_button }}</a>{% endif %}<a class="info-button outline" href="tel:{{ restaurant.phone|cut:' ' }}">{{ t.call }}</a></div>
+    </section>
+  </main>
+
+  <footer class="info-footer">
+    <a class="info-brand" href="{% url 'menu:home' %}?lang={{ language }}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a>
+    <div><a href="{% url 'menu:home' %}?lang={{ language }}#dishes">{{ t.menu }}</a><a href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.reservation }}</a><a href="#contacts">{{ t.contacts }}</a><a href="#faq">{{ t.faq }}</a><a href="{% url 'menu:complaint' %}?lang={{ language }}">{{ t.complaint }}</a></div>
+    <p>© 2026 {{ restaurant.restaurant_name }}</p>
+  </footer>
+  {% include 'partials/mobile_drawer.html' %}
+  <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
+</body>
+</html>

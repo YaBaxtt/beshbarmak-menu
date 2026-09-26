@@ -39,8 +39,18 @@
   const promotionDots = [...document.querySelectorAll("[data-promotion-dot]")];
   const promotionPrevious = document.querySelector("[data-promotion-previous]");
   const promotionNext = document.querySelector("[data-promotion-next]");
+  const likeButtons = [...document.querySelectorAll("[data-like-dish]")];
+  const sheetLikeButton = document.querySelector("[data-sheet-like]");
+  const sheetLikeCount = document.querySelector("[data-sheet-like-count]");
+  const reviewLanguage = document.querySelector("[data-review-language]");
+  const reviewsMore = document.querySelector("[data-reviews-more]");
 
-  let currentLang = localStorage.getItem("menu-language") === "ru" ? "ru" : "uz";
+  const requestedLanguage = new URLSearchParams(window.location.search).get("lang");
+  let currentLang = requestedLanguage === "ru" || requestedLanguage === "uz"
+    ? requestedLanguage
+    : (document.documentElement.lang === "ru"
+      ? "ru"
+      : (localStorage.getItem("menu-language") === "ru" ? "ru" : "uz"));
   let currentCategory = "all";
   let openDishId = null;
   let previousFocus = null;
@@ -51,6 +61,11 @@
     .trim();
 
   const formatPrice = (value) => Number(value).toLocaleString("ru-RU").replace(/\u00a0/g, " ");
+  const cookieValue = (name) => document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${name}=`))
+    ?.slice(name.length + 1) || "";
 
   function updateLastBooking() {
     const savedUrl = localStorage.getItem("last-reservation-url") || "";
@@ -76,7 +91,7 @@
     localStorage.setItem("menu-language", lang);
     document.cookie = `site_language=${lang}; Max-Age=31536000; Path=/; SameSite=Lax`;
 
-    document.querySelectorAll('a[href^="/reservation/"]').forEach((link) => {
+    document.querySelectorAll('a[href^="/reservation/"], a[href^="/about/"], a[href^="/complaint/"]').forEach((link) => {
       const url = new URL(link.href, window.location.origin);
       url.searchParams.set("lang", lang);
       link.href = `${url.pathname}${url.search}${url.hash}`;
@@ -88,6 +103,10 @@
     });
 
     if (search) search.placeholder = lang === "uz" ? search.dataset.placeholderUz : search.dataset.placeholderRu;
+    document.querySelectorAll("[data-placeholder-uz]").forEach((field) => {
+      field.placeholder = lang === "uz" ? field.dataset.placeholderUz : field.dataset.placeholderRu;
+    });
+    if (reviewLanguage) reviewLanguage.value = lang;
     langButtons.forEach((button) => {
       const active = button.dataset.lang === lang;
       button.classList.toggle("active", active);
@@ -171,6 +190,48 @@
     sheetStatus.textContent = dish.available ? "" : (currentLang === "uz" ? "● Hozir mavjud emas" : "● Сейчас нет");
     sheetStatus.hidden = dish.available;
     sheetStatus.classList.toggle("unavailable", !dish.available);
+    if (sheetLikeButton) {
+      sheetLikeButton.dataset.likeDish = String(dish.id);
+      sheetLikeButton.dataset.likeUrl = document.querySelector(`[data-like-dish="${dish.id}"]`)?.dataset.likeUrl || "";
+      sheetLikeButton.classList.toggle("liked", Boolean(dish.liked));
+      sheetLikeButton.setAttribute("aria-pressed", String(Boolean(dish.liked)));
+    }
+    if (sheetLikeCount) sheetLikeCount.textContent = dish.likes_count;
+  }
+
+  function updateDishLike(dishId, liked, count) {
+    const dish = dishes[dishId];
+    if (dish) {
+      dish.liked = liked;
+      dish.likes_count = count;
+    }
+    document.querySelectorAll(`[data-like-dish="${dishId}"]`).forEach((button) => {
+      button.classList.toggle("liked", liked);
+      button.setAttribute("aria-pressed", String(liked));
+      const counter = button.querySelector("[data-like-count]") || button.querySelector("[data-sheet-like-count]");
+      if (counter) counter.textContent = count;
+    });
+  }
+
+  async function toggleDishLike(button) {
+    const dishId = button.dataset.likeDish;
+    const url = button.dataset.likeUrl;
+    if (!dishId || !url || button.disabled) return;
+    document.querySelectorAll(`[data-like-dish="${dishId}"]`).forEach((item) => { item.disabled = true; });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": decodeURIComponent(cookieValue("csrftoken")), "X-Requested-With": "XMLHttpRequest" },
+        credentials: "same-origin",
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      updateDishLike(dishId, result.liked, result.count);
+    } catch (error) {
+      console.error("Like request failed", error);
+    } finally {
+      document.querySelectorAll(`[data-like-dish="${dishId}"]`).forEach((item) => { item.disabled = false; });
+    }
   }
 
   function openLightbox(image) {
@@ -220,7 +281,7 @@
     };
     const startAuto = () => {
       stopAuto();
-      if (!reducedMotion && !document.hidden) timer = window.setInterval(() => goTo(currentIndex + 1), 5500);
+      if (!reducedMotion && !document.hidden) timer = window.setInterval(() => goTo(currentIndex + 1), 5000);
     };
 
     promotionPrevious?.addEventListener("click", () => { goTo(currentIndex - 1); startAuto(); });
@@ -303,6 +364,12 @@
 
   document.querySelectorAll(".dish-trigger").forEach((trigger) => {
     trigger.addEventListener("click", () => openSheet(trigger.dataset.dishId, trigger));
+  });
+  likeButtons.forEach((button) => button.addEventListener("click", () => toggleDishLike(button)));
+  sheetLikeButton?.addEventListener("click", () => toggleDishLike(sheetLikeButton));
+  reviewsMore?.addEventListener("click", () => {
+    document.querySelectorAll(".review-extra").forEach((review) => review.classList.add("shown"));
+    reviewsMore.hidden = true;
   });
 
   sheetClose?.addEventListener("click", closeSheet);

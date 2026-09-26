@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (
-    DiningSpace, Reservation, ReservationAction, ReservationOccasion,
+    Complaint, DiningSpace, Reservation, ReservationAction, ReservationOccasion,
     RestaurantClosure, SiteVisitDaily, StaffProfile, WorkingHours,
 )
 
@@ -25,10 +25,10 @@ class ReservationAdmin(admin.ModelAdmin):
     list_per_page = 30
     inlines = (ReservationActionInline,)
     fieldsets = (
-        ("Заявка", {"fields": ("public_number", "public_token", "status", "date", "time", "guests_count", "space", "occasion")}),
-        ("Гость", {"fields": ("customer_name", "phone", "customer_comment")}),
-        ("Работа менеджера", {"fields": ("handled_by_staff", "manager_comment", "proposed_date", "proposed_time", "rejection_reason")}),
-        ("Служебные даты", {"fields": ("created_at", "updated_at", "accepted_at", "rejected_at", "cancelled_at", "completed_at"), "classes": ("collapse",)}),
+        ("Bron ma’lumotlari", {"fields": ("public_number", "public_token", "status", "date", "time", "guests_count", "space", "occasion")}),
+        ("Mehmon", {"fields": ("customer_name", "phone", "customer_comment")}),
+        ("Administrator ishi", {"fields": ("handled_by_staff", "manager_comment", "proposed_date", "proposed_time", "rejection_reason")}),
+        ("Xizmat vaqtlari", {"fields": ("created_at", "updated_at", "accepted_at", "rejected_at", "cancelled_at", "completed_at"), "classes": ("collapse",)}),
     )
 
 
@@ -39,6 +39,23 @@ class ReservationOccasionAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name_ru", "name_uz", "code")
     ordering = ("sort_order", "id")
+
+
+@admin.register(Complaint)
+class ComplaintAdmin(admin.ModelAdmin):
+    list_display = ("public_number", "created_at", "reason", "space", "place_details", "status", "handled_by_staff")
+    list_filter = ("status", "reason", "space", "created_at")
+    search_fields = ("public_number", "place_details", "description", "staff_comment")
+    autocomplete_fields = ("space", "handled_by_staff")
+    readonly_fields = ("public_number", "submission_token", "created_at", "updated_at", "reviewed_at", "resolved_at")
+    date_hierarchy = "created_at"
+    ordering = ("-created_at", "-pk")
+    list_per_page = 30
+    fieldsets = (
+        ("Shikoyat", {"fields": ("public_number", "reason", "space", "place_details", "description", "status")}),
+        ("Ko‘rib chiqish", {"fields": ("handled_by_staff", "staff_comment", "reviewed_at", "resolved_at")}),
+        ("Xizmat ma’lumotlari", {"fields": ("submission_token", "created_at", "updated_at"), "classes": ("collapse",)}),
+    )
 
 
 @admin.register(DiningSpace)
@@ -57,7 +74,7 @@ class StaffProfileAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user__first_name", "user__last_name", "telegram_username", "telegram_id")
     autocomplete_fields = ("user",)
 
-    @admin.display(description="Сотрудник", ordering="user__first_name")
+    @admin.display(description="Xodim", ordering="user__first_name")
     def display_name(self, obj):
         return str(obj)
 

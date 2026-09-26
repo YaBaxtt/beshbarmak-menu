@@ -11,15 +11,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/reservations.css' %}?v=20260923-2">
-  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260922-1">
+  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
   {% block head %}{% endblock %}
 </head>
 <body data-language="{{ language }}">
   <div class="public-app-shell">
   <header class="public-header">
-    <a class="wordmark" href="{% url 'menu:home' %}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a>
+    <a class="wordmark" href="{% url 'menu:home' %}?lang={{ language }}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a>
     <nav aria-label="Navigatsiya / Навигация">
-      <a href="{% url 'menu:home' %}#dishes">{{ t.menu }}</a>
+      <a href="{% url 'menu:home' %}?lang={{ language }}#dishes">{{ t.menu }}</a>
       <a class="header-cta" href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.reserve }}</a>
     </nav>
     <div class="public-language" aria-label="Til / Язык"><a class="{% if language == 'uz' %}active{% endif %}" href="{{ request.path }}?lang=uz">UZ</a><a class="{% if language == 'ru' %}active{% endif %}" href="{{ request.path }}?lang=ru">RU</a></div>

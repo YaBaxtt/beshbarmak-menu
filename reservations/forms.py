@@ -9,7 +9,7 @@ from django.db import transaction
 
 from menu.models import RestaurantSettings
 
-from .models import DiningSpace, Reservation, ReservationOccasion, RestaurantClosure, StaffProfile, WorkingHours
+from .models import Complaint, DiningSpace, Reservation, ReservationOccasion, RestaurantClosure, StaffProfile, WorkingHours
 
 
 def sync_staff_permissions(user, role):
@@ -76,6 +76,74 @@ class ReservationForm(forms.ModelForm):
             message = "Telefon raqamini tekshiring." if self.language == "uz" else "Проверьте номер телефона."
             raise forms.ValidationError(message)
         return phone
+
+
+COMPLAINT_REASON_LABELS = {
+    "ru": {
+        Complaint.Reason.CLEANLINESS: "Комната или зал были грязными",
+        Complaint.Reason.AIR: "Было душно или неприятный воздух",
+        Complaint.Reason.COLD_FOOD: "Еда была недостаточно горячей",
+        Complaint.Reason.TASTE: "Не понравился вкус еды",
+        Complaint.Reason.MISSING_ITEM: "Чего-то не было в заказе",
+        Complaint.Reason.SERVICE: "Не понравилось обслуживание",
+        Complaint.Reason.SLOW_SERVICE: "Официант долго не подходил",
+        Complaint.Reason.OTHER: "Другая причина",
+    },
+    "uz": {
+        Complaint.Reason.CLEANLINESS: "Xona yoki zal toza emas edi",
+        Complaint.Reason.AIR: "Havo dim yoki yoqimsiz edi",
+        Complaint.Reason.COLD_FOOD: "Taom issiq emas edi",
+        Complaint.Reason.TASTE: "Taomning ta’mi yoqmadi",
+        Complaint.Reason.MISSING_ITEM: "Buyurtmada nimadir yetishmadi",
+        Complaint.Reason.SERVICE: "Xizmat ko‘rsatish yoqmadi",
+        Complaint.Reason.SLOW_SERVICE: "Ofitsiant uzoq vaqt kelmadi",
+        Complaint.Reason.OTHER: "Boshqa sabab",
+    },
+}
+
+
+class ComplaintForm(forms.ModelForm):
+    class Meta:
+        model = Complaint
+        fields = ("reason", "space", "place_details", "description")
+        widgets = {
+            "reason": forms.RadioSelect(),
+            "space": forms.Select(),
+            "place_details": forms.TextInput(),
+            "description": forms.Textarea(attrs={"rows": 6}),
+        }
+
+    def __init__(self, *args, language="uz", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.language = language if language in {"uz", "ru"} else "uz"
+        self.fields["reason"].choices = [
+            (value, COMPLAINT_REASON_LABELS[self.language][value])
+            for value in Complaint.Reason.values
+        ]
+        self.fields["space"].queryset = DiningSpace.objects.filter(is_active=True).order_by("sort_order", "id")
+        self.fields["space"].empty_label = "Ko‘rsatilmagan" if self.language == "uz" else "Не указано"
+        language = self.language
+        self.fields["space"].label_from_instance = lambda item: (
+            f"{item.localized_name(language)} · {item.capacity_min or 1}–{item.capacity_max} "
+            f"{'kishi' if language == 'uz' else 'гостей'}"
+        )
+        if self.language == "uz":
+            self.fields["reason"].error_messages["required"] = "Iltimos, sababni tanlang."
+            self.fields["description"].error_messages["required"] = "Iltimos, nima bo‘lganini yozing."
+            self.fields["place_details"].widget.attrs["placeholder"] = "Masalan: 3-xona yoki 7-stol"
+            self.fields["description"].widget.attrs["placeholder"] = "Nima bo‘lganini batafsil yozing"
+        else:
+            self.fields["reason"].error_messages["required"] = "Пожалуйста, выберите причину."
+            self.fields["description"].error_messages["required"] = "Пожалуйста, опишите, что произошло."
+            self.fields["place_details"].widget.attrs["placeholder"] = "Например: комната 3 или стол 7"
+            self.fields["description"].widget.attrs["placeholder"] = "Подробно опишите, что произошло"
+
+    def clean_description(self):
+        value = " ".join(self.cleaned_data["description"].split())
+        if len(value) < 10:
+            message = "Iltimos, vaziyatni batafsilroq yozing." if self.language == "uz" else "Пожалуйста, опишите ситуацию подробнее."
+            raise forms.ValidationError(message)
+        return value
 
 
 class DiningSpaceForm(forms.ModelForm):

@@ -1,6 +1,6 @@
 {% load static menu_extras %}
 <!doctype html>
-<html lang="uz">
+<html lang="{{ language|default:'uz' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,10 +15,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260923-2">
-  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260922-1">
-  <script src="{% static 'js/menu.js' %}?v=20260923-2" defer></script>
-  <script src="{% static 'js/site-nav.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-3">
+  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
+  <script src="{% static 'js/menu.js' %}?v=20260926-3" defer></script>
+  <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#menu-content">Menyuga o‘tish / К меню</a>
@@ -29,11 +29,11 @@
     <section class="hero" {% if restaurant.hero_image %}style="--hero-image: url('{{ restaurant.hero_image.url }}')"{% else %}style="--hero-image: url('{% static 'images/demo/hero.webp' %}')"{% endif %}>
       <div class="hero-grain" aria-hidden="true"></div>
       <header class="hero-topbar">
-        <a class="top-reservation" href="{% url 'reservations:start' %}?lang=uz" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
+        <a class="top-reservation" href="{% url 'reservations:start' %}?lang={{ language|default:'uz' }}" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
         <div class="language-switch" role="group" aria-label="Til / Язык">
-          <button type="button" class="lang-button active" data-lang="uz" aria-pressed="true">UZ</button>
+          <button type="button" class="lang-button{% if language != 'ru' %} active{% endif %}" data-lang="uz" aria-pressed="{% if language != 'ru' %}true{% else %}false{% endif %}">UZ</button>
           <span></span>
-          <button type="button" class="lang-button" data-lang="ru" aria-pressed="false">RU</button>
+          <button type="button" class="lang-button{% if language == 'ru' %} active{% endif %}" data-lang="ru" aria-pressed="{% if language == 'ru' %}true{% else %}false{% endif %}">RU</button>
         </div>
         <button class="nav-more-button" type="button" data-nav-open aria-label="Открыть меню" aria-expanded="false"><i></i><i></i><i></i></button>
       </header>
@@ -57,11 +57,12 @@
     </section>
 
     <section class="quick-actions" aria-label="Tezkor havolalar / Быстрые ссылки">
-      <a class="action-button menu-action" href="{% url 'reservations:start' %}?lang=uz">
+      <a class="action-button menu-action reservation-action" href="{% url 'reservations:start' %}?lang={{ language|default:'uz' }}">
         <span class="action-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v3M19 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/><path d="m9 14 2 2 4-5"/></svg>
         </span>
-        <span data-i18n data-uz="Band qilish" data-ru="Забронировать">Band qilish</span>
+        <span class="reservation-action-copy"><b data-i18n data-uz="Stol yoki xona band qilish" data-ru="Забронировать стол или комнату">Stol yoki xona band qilish</b><small data-i18n data-uz="Ro‘yxatdan o‘tmasdan — atigi 3 qadam" data-ru="Без регистрации — всего 3 шага">Ro‘yxatdan o‘tmasdan — atigi 3 qadam</small></span>
+        <i class="reservation-action-arrow">→</i>
       </a>
       {% if restaurant.telegram_url %}<a class="action-button telegram-action" href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">
         <span class="action-icon">
@@ -74,6 +75,12 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
         </span>
         <span>Instagram</span>
+      </a>{% endif %}
+      {% if restaurant.youtube_url %}<a class="action-button youtube-action" href="{{ restaurant.youtube_url }}" target="_blank" rel="noopener">
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3Z" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <span>YouTube</span>
       </a>{% endif %}
     </section>
 
@@ -94,6 +101,12 @@
         <span><small data-i18n data-uz="Ish vaqti" data-ru="Время работы">Ish vaqti</small><b data-i18n data-uz="{{ restaurant.working_hours_uz }}" data-ru="{{ restaurant.working_hours_ru }}">{{ restaurant.working_hours_uz }}</b></span>
       </div>
     </section>
+
+    <a class="complaint-entry" href="{% url 'menu:complaint' %}?lang={{ language|default:'uz' }}">
+      <span class="complaint-entry-icon">!</span>
+      <span><small data-i18n data-uz="Xizmat yoki taom bo‘yicha muammo bo‘ldimi?" data-ru="Возникла проблема с обслуживанием или едой?">Xizmat yoki taom bo‘yicha muammo bo‘ldimi?</small><b data-i18n data-uz="Anonim shikoyat yuborish" data-ru="Отправить анонимную жалобу">Anonim shikoyat yuborish</b></span>
+      <i>→</i>
+    </a>
 
     <section class="last-booking-card" hidden aria-live="polite">
       <span class="last-booking-icon">✓</span>
@@ -166,7 +179,8 @@
         </div>
         <div class="popular-scroller">
           {% for dish in popular_dishes %}
-          <button class="popular-card dish-trigger" type="button" data-dish-id="{{ dish.pk }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ dish.category.name_uz }} {{ dish.category.name_ru }}" data-category="{{ dish.category.slug }}">
+          <article class="popular-card" data-dish-id="{{ dish.pk }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ dish.category.name_uz }} {{ dish.category.name_ru }}" data-category="{{ dish.category.slug }}">
+            <button class="card-open dish-trigger" type="button" data-dish-id="{{ dish.pk }}" aria-label="{{ dish.name_uz }}"></button>
             {% with cover=dish.images.first %}
             <div class="popular-image">
               {% if cover %}<img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="420" height="300">{% else %}<div class="image-placeholder">✦</div>{% endif %}
@@ -177,7 +191,10 @@
               <span class="popular-name" data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</span>
               <span class="popular-price">{{ dish.price|price }} <small>so‘m</small></span>
             </div>
-          </button>
+            <button class="dish-like-button{% if dish.pk in liked_dish_ids %} liked{% endif %}" type="button" data-like-dish="{{ dish.pk }}" data-like-url="{% url 'menu:toggle-dish-like' dish.pk %}" aria-pressed="{% if dish.pk in liked_dish_ids %}true{% else %}false{% endif %}" aria-label="Yoqtirish / Нравится">
+              <span aria-hidden="true">♥</span><b data-like-count>{{ dish.likes_count }}</b>
+            </button>
+          </article>
           {% endfor %}
         </div>
       </section>
@@ -196,7 +213,8 @@
             <div class="dish-grid">
               {% for dish in dishes %}
                 {% if dish.category_id == category.id %}
-                <button class="dish-card dish-trigger{% if not dish.is_available %} unavailable{% endif %}" type="button" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
+                <article class="dish-card{% if not dish.is_available %} unavailable{% endif %}" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
+                  <button class="card-open dish-trigger" type="button" data-dish-id="{{ dish.pk }}" aria-label="{{ dish.name_uz }}"></button>
                   {% with cover=dish.images.first %}
                   <div class="dish-image">
                     {% if cover %}
@@ -221,7 +239,10 @@
                       <span class="card-arrow"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span>
                     </div>
                   </div>
-                </button>
+                  <button class="dish-like-button{% if dish.pk in liked_dish_ids %} liked{% endif %}" type="button" data-like-dish="{{ dish.pk }}" data-like-url="{% url 'menu:toggle-dish-like' dish.pk %}" aria-pressed="{% if dish.pk in liked_dish_ids %}true{% else %}false{% endif %}" aria-label="Yoqtirish / Нравится">
+                    <span aria-hidden="true">♥</span><b data-like-count>{{ dish.likes_count }}</b>
+                  </button>
+                </article>
                 {% endif %}
               {% endfor %}
             </div>
@@ -236,6 +257,47 @@
         <button type="button" data-i18n data-uz="Qidiruvni tozalash" data-ru="Очистить поиск">Qidiruvni tozalash</button>
       </div>
 
+      <section class="reviews-section reveal" id="reviews">
+        <div class="reviews-heading">
+          <div>
+            <p class="section-kicker" data-i18n data-uz="Mehmonlar fikri" data-ru="Отзывы гостей">Mehmonlar fikri</p>
+            <h2 data-i18n data-uz="Sizning fikringiz biz uchun muhim" data-ru="Ваше мнение важно для нас">Sizning fikringiz biz uchun muhim</h2>
+          </div>
+          {% if review_total %}<div class="reviews-score"><strong>{{ review_average|floatformat:1 }}</strong><span>★★★★★</span><small>{{ review_total }} <i data-i18n data-uz="ta fikr" data-ru="отзывов">ta fikr</i></small></div>{% endif %}
+        </div>
+
+        {% if review_submitted %}<div class="review-message success" role="status"><b>✓</b><span data-i18n data-uz="Rahmat! Fikringiz qabul qilindi va tekshiruvdan so‘ng saytda ko‘rinadi." data-ru="Спасибо! Отзыв принят и появится на сайте после проверки.">Rahmat! Fikringiz qabul qilindi va tekshiruvdan so‘ng saytda ko‘rinadi.</span></div>{% endif %}
+        {% if review_invalid %}<div class="review-message error" role="alert"><b>!</b><span data-i18n data-uz="Iltimos, baho qo‘ying va fikrni to‘liqroq yozing." data-ru="Поставьте оценку и напишите отзыв подробнее.">Iltimos, baho qo‘ying va fikrni to‘liqroq yozing.</span></div>{% endif %}
+
+        <form class="review-form" id="review-form" method="post" action="{% url 'menu:submit-review' %}">
+          {% csrf_token %}
+          <input type="hidden" name="lang" value="{{ language|default:'uz' }}" data-review-language>
+          <input type="hidden" name="submission_token" value="{{ review_token }}">
+          <fieldset class="rating-field">
+            <legend data-i18n data-uz="Qanday baholaysiz?" data-ru="Как вы оцените ресторан?">Qanday baholaysiz?</legend>
+            <div class="star-picker">
+              {% for value in "54321" %}<input type="radio" name="rating" value="{{ value }}" id="rating-{{ value }}" required><label for="rating-{{ value }}" title="{{ value }}/5">★</label>{% endfor %}
+            </div>
+          </fieldset>
+          <label class="review-field"><span data-i18n data-uz="Ismingiz (ixtiyoriy)" data-ru="Ваше имя (необязательно)">Ismingiz (ixtiyoriy)</span><input type="text" name="guest_name" maxlength="80" autocomplete="name" data-placeholder-uz="Masalan, Dilshod" data-placeholder-ru="Например, Дильшод" placeholder="Masalan, Dilshod"></label>
+          <label class="review-field"><span data-i18n data-uz="Fikringiz" data-ru="Ваш отзыв">Fikringiz</span><textarea name="text" minlength="5" maxlength="1000" required data-placeholder-uz="Taomlar va xizmat haqida yozing..." data-placeholder-ru="Напишите о блюдах и обслуживании..." placeholder="Taomlar va xizmat haqida yozing..."></textarea></label>
+          <button class="review-submit" type="submit"><span data-i18n data-uz="Fikrni yuborish" data-ru="Отправить отзыв">Fikrni yuborish</span><i>→</i></button>
+          <p class="review-note" data-i18n data-uz="Fikr administrator tekshiruvidan keyin e’lon qilinadi." data-ru="Отзыв публикуется после проверки администратором.">Fikr administrator tekshiruvidan keyin e’lon qilinadi.</p>
+        </form>
+
+        {% if reviews %}
+        <div class="review-list" data-review-list>
+          {% for review in reviews %}<article class="review-card{% if forloop.counter > 3 %} review-extra{% endif %}">
+            <header><span>{% if review.guest_name %}{{ review.guest_name|slice:":1"|upper }}{% else %}M{% endif %}</span><div>{% if review.guest_name %}<b>{{ review.guest_name }}</b>{% else %}<b data-i18n data-uz="Anonim mehmon" data-ru="Анонимный гость">Anonim mehmon</b>{% endif %}<time>{{ review.created_at|date:"d.m.Y" }}</time></div><i>{% for star in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</i></header>
+            <p>{{ review.text }}</p>
+          </article>{% endfor %}
+        </div>
+        {% if review_total > 3 %}<button class="reviews-more" type="button" data-reviews-more><span data-i18n data-uz="Barcha fikrlarni ko‘rish" data-ru="Показать все отзывы">Barcha fikrlarni ko‘rish</span> <b>({{ review_total }})</b></button>{% endif %}
+        {% else %}
+        <div class="reviews-empty"><span>✦</span><p data-i18n data-uz="Hali fikr yo‘q. Birinchi bo‘lib taassurotingizni yozing." data-ru="Отзывов пока нет. Поделитесь впечатлением первым.">Hali fikr yo‘q. Birinchi bo‘lib taassurotingizni yozing.</p></div>
+        {% endif %}
+      </section>
+
     </div>
 
     <footer class="site-footer">
@@ -247,7 +309,9 @@
         <a href="tel:{{ restaurant.phone|cut:' ' }}">{{ restaurant.phone }}</a>
         {% if restaurant.telegram_url %}<a href="{{ restaurant.telegram_url }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
         {% if restaurant.instagram_url %}<a href="{{ restaurant.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
-        <a href="{% url 'reservations:start' %}?lang=uz" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
+        {% if restaurant.youtube_url %}<a href="{{ restaurant.youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+        <a href="#reviews" data-i18n data-uz="Fikr yozish" data-ru="Оставить отзыв">Fikr yozish</a>
+        <a href="{% url 'reservations:start' %}?lang={{ language|default:'uz' }}" data-i18n data-uz="Stol band qilish" data-ru="Забронировать">Stol band qilish</a>
         <span class="footer-hours" data-i18n data-uz="{{ restaurant.working_hours_uz }}" data-ru="{{ restaurant.working_hours_ru }}">{{ restaurant.working_hours_uz }}</span>
       </div>
       <div class="footer-rule"></div>
@@ -279,6 +343,7 @@
         </div>
         <h3 data-i18n data-uz="Taom haqida" data-ru="О блюде">Taom haqida</h3>
         <p class="sheet-description"></p>
+        <button class="sheet-like-button" type="button" data-sheet-like aria-pressed="false"><span>♥</span><b data-i18n data-uz="Yoqdi" data-ru="Нравится">Yoqdi</b><i data-sheet-like-count>0</i></button>
       </div>
     </div>
   </aside>

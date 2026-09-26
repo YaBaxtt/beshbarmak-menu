@@ -1,0 +1,69 @@
+:root {
+  --primary: #6f351f;
+  --secondary: #3a2117;
+  --accent: #f2d29a;
+  --header-color: #fffaf1;
+  --header-bg: #26170f;
+  --header-link-color: #f2d29a;
+  --breadcrumbs-bg: #6f351f;
+  --breadcrumbs-fg: #fffaf1;
+  --link-fg: #8b4129;
+  --link-hover-color: #4c281b;
+  --button-bg: #793a24;
+  --button-hover-bg: #542718;
+  --default-button-bg: #793a24;
+  --default-button-hover-bg: #542718;
+  --body-bg: #f4ecdf;
+  --body-fg: #2a1c15;
+  --hairline-color: #e2d4c2;
+  --border-color: #ddceba;
+  --darkened-bg: #f5eee4;
+  --selected-bg: #f2e1c6;
+}
+
+html, body { font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+body { background: radial-gradient(circle at 90% 0, rgba(198,150,76,.13), transparent 32rem), var(--body-bg); }
+#header { min-height: 70px; padding: 0 28px; box-shadow: 0 12px 30px rgba(47,27,16,.16); }
+#branding { display: flex; align-items: center; }
+.besh-admin-brand { display: flex; align-items: center; gap: 12px; color: #fffaf1; }
+.besh-admin-mark { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(242,210,154,.6); border-radius: 12px; color: #f2d29a; font-family: Georgia, serif; font-size: 14px; }
+.besh-admin-brand > span:last-child { display: grid; line-height: 1.1; }
+.besh-admin-brand b { font-family: Georgia, serif; font-size: 19px; letter-spacing: -.02em; }
+.besh-admin-brand small { margin-top: 5px; color: rgba(255,255,255,.58); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.besh-admin-status { display: inline-flex; align-items: center; gap: 7px; color: rgba(255,255,255,.72); font-size: 12px; font-weight: 700; }
+.besh-admin-status i { width: 8px; height: 8px; border-radius: 50%; background: #65c98b; box-shadow: 0 0 0 4px rgba(101,201,139,.12); }
+
+div.breadcrumbs { padding: 13px 30px; background: linear-gradient(90deg, #713620, #8b4830); }
+#content { padding: 28px 30px; }
+#content h1 { margin-bottom: 22px; color: #281911; font-family: Georgia, serif; font-size: 30px; letter-spacing: -.025em; }
+.module, .inline-group { overflow: hidden; border: 1px solid rgba(103,62,38,.1); border-radius: 14px; background: #fffaf3; box-shadow: 0 8px 28px rgba(66,40,23,.07); }
+.module h2, .module caption, .inline-group h2 { padding: 12px 15px; background: linear-gradient(100deg, #6f351f, #864831); color: #fffaf3; font-size: 12px; font-weight: 800; letter-spacing: .035em; }
+.dashboard .module table th { width: 100%; }
+.dashboard .module table td { white-space: nowrap; }
+.dashboard .module a { font-weight: 700; }
+thead th { background: #efe3d2; color: #493024; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+tbody tr:nth-child(even) { background: rgba(242,231,215,.48); }
+tbody tr:hover { background: #f4e4ca; }
+.object-tools a, input[type=submit], button, .button { min-height: 36px; border-radius: 9px; font-weight: 700; }
+.object-tools a { display: inline-flex; align-items: center; padding: 0 15px; background: #793a24; }
+.submit-row { border: 1px solid #e1d2bf; border-radius: 14px; background: #fffaf3; box-shadow: 0 8px 24px rgba(66,40,23,.07); }
+.form-row { padding: 14px 12px; }
+.form-row input, .form-row textarea, .form-row select, #changelist-search input { min-height: 40px; border-color: #d9c7b0; border-radius: 9px; background: #fff; }
+.form-row textarea { padding: 10px; }
+.selector { border-radius: 12px; }
+#changelist-filter { border-left: 1px solid #dfd0bd; background: #fffaf3; }
+#changelist-filter h2 { background: #352117; }
+.messagelist li { border-radius: 10px; box-shadow: 0 5px 16px rgba(60,36,20,.07); }
+#user-tools { font-size: 11px; }
+
+@media (max-width: 767px) {
+  #header { display: flex !important; width: 100%; min-width: 0; min-height: 64px; height: auto; padding: 10px 14px !important; align-items: stretch !important; flex-direction: column !important; justify-content: flex-start !important; box-sizing: border-box; overflow: hidden; }
+  #branding { flex: none !important; width: auto !important; min-width: 0; min-height: 44px; }
+  #user-tools { display: flex !important; flex: none !important; width: auto !important; min-width: 0; max-width: 100%; margin: 7px 0 0 !important; padding-top: 7px; align-items: center; flex-wrap: wrap !important; gap: 3px 7px; box-sizing: border-box; border-top: 1px solid rgba(255,255,255,.1); line-height: 1.65; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; }
+  #user-tools form, #user-tools button, #user-tools .theme-toggle { max-width: 100%; margin: 0; }
+  .besh-admin-brand small, .besh-admin-status { display: none; }
+  .besh-admin-brand b { font-size: 16px; }
+  #content { padding: 20px 14px; }
+  div.breadcrumbs { padding: 11px 14px; }
+  #content h1 { font-size: 25px; }
+}

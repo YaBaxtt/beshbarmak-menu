@@ -58,21 +58,35 @@ const path = require("path");
 
     if (width === 390) {
       if (!(await reservation.getByText("Stolingiz sizni kutmoqda", { exact: true }).count())) throw new Error("UZ reservation page did not load");
+      const quickActionLayout = await page.locator(".quick-actions").evaluate((container) => {
+        const reservationAction = container.querySelector(".reservation-action").getBoundingClientRect();
+        const socialActions = [...container.querySelectorAll(".telegram-action, .instagram-action, .youtube-action")];
+        return {
+          containerWidth: Math.round(container.getBoundingClientRect().width),
+          reservationWidth: Math.round(reservationAction.width),
+          socialCount: socialActions.length,
+        };
+      });
+      if (quickActionLayout.socialCount !== 3) throw new Error(`Expected Telegram, Instagram and YouTube actions: ${JSON.stringify(quickActionLayout)}`);
+      if (quickActionLayout.reservationWidth < quickActionLayout.containerWidth - 2) throw new Error(`Reservation action is not full-width: ${JSON.stringify(quickActionLayout)}`);
+      const youtubeHref = await page.locator(".youtube-action").getAttribute("href");
+      if (!youtubeHref?.includes("youtube.com")) throw new Error("YouTube action URL is missing");
+      await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-actions.png"), fullPage: false });
       const promotionLayout = await page.locator("[data-promotion-track]").evaluate((track) => ({
         cards: track.querySelectorAll("[data-promotion-card]").length,
         scrollable: track.scrollWidth > track.clientWidth,
         topSpread: Math.max(...[...track.querySelectorAll("[data-promotion-card]")].map((card) => card.offsetTop)) - Math.min(...[...track.querySelectorAll("[data-promotion-card]")].map((card) => card.offsetTop)),
       }));
       if (promotionLayout.cards < 3 || !promotionLayout.scrollable || promotionLayout.topSpread > 2) throw new Error(`Promotion carousel layout is invalid: ${JSON.stringify(promotionLayout)}`);
-      await page.locator("[data-promotion-next]").click();
-      await page.waitForTimeout(450);
-      if ((await page.locator('[data-promotion-dot][aria-current="true"]').getAttribute("data-promotion-dot")) !== "1") throw new Error("Promotion next control did not activate the second slide");
+      await page.locator('[data-promotion-dot="0"]').click();
+      await page.waitForTimeout(5200);
+      if ((await page.locator('[data-promotion-dot][aria-current="true"]').getAttribute("data-promotion-dot")) !== "1") throw new Error("Promotion did not advance automatically after five seconds");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390-home.png"), fullPage: false });
       await page.locator('[data-lang="ru"]').click();
       await page.locator("[data-nav-open]").first().click();
       await page.locator(".nav-drawer.open").waitFor();
       await page.waitForTimeout(380);
-      for (const label of ["Акции", "О ресторане", "Частые вопросы", "Контакты", "Написать в поддержку"]) {
+      for (const label of ["Акции", "О ресторане", "Частые вопросы", "Контакты", "Написать отзыв", "Отправить жалобу", "Написать в поддержку"]) {
         if (!(await page.getByText(label, { exact: true }).count())) throw new Error(`Drawer item is missing: ${label}`);
       }
       const routeHref = await page.locator(".drawer-place > a").getAttribute("href");
@@ -99,6 +113,20 @@ const path = require("path");
       if (soupVisible !== 3) throw new Error(`Soup filter returned ${soupVisible} dishes instead of 3`);
       await page.locator('.category-chip[data-category="all"]').click();
 
+      const likeButton = page.locator('.dish-card[data-dish-id="1"] .dish-like-button');
+      const likesBefore = Number(await likeButton.locator("[data-like-count]").textContent());
+      await Promise.all([
+        page.waitForResponse((response) => response.url().includes("/dish/1/like/") && response.request().method() === "POST"),
+        likeButton.click(),
+      ]);
+      if (!(await likeButton.getAttribute("class")).includes("liked")) throw new Error("Dish like did not become active");
+      if (Number(await likeButton.locator("[data-like-count]").textContent()) !== likesBefore + 1) throw new Error("Dish like counter did not increase");
+      await Promise.all([
+        page.waitForResponse((response) => response.url().includes("/dish/1/like/") && response.request().method() === "POST"),
+        likeButton.click(),
+      ]);
+      if ((await likeButton.getAttribute("class")).includes("liked")) throw new Error("Second like click did not remove the like");
+
       await page.locator('.dish-card[data-dish-id="1"]').click();
       await page.locator(".dish-sheet.open").waitFor();
       const title = await page.locator("#sheet-title").textContent();
@@ -111,6 +139,19 @@ const path = require("path");
       await page.screenshot({ path: path.join(artifactDir, "menu-mobile-390.png"), fullPage: false });
       await page.locator(".sheet-close").click();
       await page.locator(".dish-sheet:not(.open)").waitFor();
+      await page.waitForTimeout(400);
+
+      await page.locator("#reviews").scrollIntoViewIfNeeded();
+      await page.locator('label[for="rating-5"]').click();
+      await page.locator('#review-form input[name="guest_name"]').fill("Browser QA");
+      await page.locator('#review-form textarea[name="text"]').fill("Saytdagi fikr yuborish shakli mobil qurilmada tekshirildi.");
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: path.join(artifactDir, "reviews-mobile-390.png"), fullPage: false });
+      await Promise.all([
+        page.waitForURL(/review=sent/),
+        page.locator("#review-form .review-submit").click(),
+      ]);
+      if (!(await page.locator(".review-message.success").count())) throw new Error("Review confirmation is missing");
 
       const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
       await reservation.locator("#id_date").fill(tomorrow);
@@ -148,9 +189,31 @@ const path = require("path");
   await info.goto(`${baseUrl}/about/`, { waitUntil: "networkidle" });
   const infoOverflow = await info.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   if (infoOverflow) throw new Error("Information page has horizontal overflow at 390px");
-  if (!(await info.getByText("Частые вопросы", { exact: true }).count())) throw new Error("FAQ section is missing");
-  await info.screenshot({ path: path.join(artifactDir, "info-mobile-390.png"), fullPage: true });
+  if (!(await info.getByText("Ko‘p beriladigan savollar", { exact: true }).count())) throw new Error("Default UZ FAQ section is missing");
+  await info.screenshot({ path: path.join(artifactDir, "info-mobile-390-uz.png"), fullPage: true });
+  await info.goto(`${baseUrl}/about/?lang=ru`, { waitUntil: "networkidle" });
+  if (!(await info.getByText("Частые вопросы", { exact: true }).count())) throw new Error("RU FAQ section is missing");
   await info.close();
+
+  const complaint = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await complaint.goto(`${baseUrl}/complaint/`, { waitUntil: "networkidle" });
+  const complaintOverflow = await complaint.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  if (complaintOverflow) throw new Error("Complaint page has horizontal overflow at 390px");
+  if (!(await complaint.getByText("Muammo haqida anonim xabar bering", { exact: true }).count())) throw new Error("Default UZ complaint page is missing");
+  if ((await complaint.locator('input[name="reason"]').count()) !== 8) throw new Error("Complaint reasons are incomplete");
+  const options = await complaint.locator('#id_space option').allTextContents();
+  for (const expected of ["Stol-stulli zal", "Katta zal", "Oddiy xona", "Tapchan"]) {
+    if (!options.some((label) => label.includes(expected))) throw new Error(`Complaint space option is missing: ${expected}`);
+  }
+  await complaint.locator('input[name="reason"]').first().check();
+  await complaint.locator('#id_space').selectOption({ label: options.find((label) => label.includes("Tapchan")) });
+  await complaint.locator('#id_place_details').fill("QA tapchan");
+  await complaint.locator('#id_description').fill("Mobil shakl orqali anonim shikoyat tekshiruvi.");
+  await complaint.screenshot({ path: path.join(artifactDir, "complaint-mobile-390.png"), fullPage: true });
+  await complaint.locator('#complaint-submit').click();
+  await complaint.waitForURL(/\/complaint\/\?lang=uz&sent=1/);
+  if (!(await complaint.getByText("Xabaringiz qabul qilindi", { exact: true }).count())) throw new Error("Complaint success state is missing");
+  await complaint.close();
 
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await desktop.goto(`${baseUrl}/`, { waitUntil: "networkidle" });

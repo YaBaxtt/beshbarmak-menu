@@ -1,0 +1,75 @@
+{% load static %}
+<!doctype html>
+<html lang="{{ language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#251710">
+  <title>{{ t.page_title }} — {{ restaurant.restaurant_name }}</title>
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/complaint.css' %}?v=20260926-1">
+  <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
+</head>
+<body data-language="{{ language }}">
+  <div class="complaint-shell">
+    <header class="complaint-header">
+      <a class="complaint-brand" href="{% url 'menu:home' %}?lang={{ language }}"><span>BH</span><b>{{ restaurant.restaurant_name }}</b></a>
+      <nav><a href="{% url 'menu:home' %}?lang={{ language }}#dishes">{{ t.menu }}</a><a href="{% url 'reservations:start' %}?lang={{ language }}">{{ t.reserve }}</a></nav>
+      <div class="complaint-language" aria-label="Til / Язык"><a class="{% if language == 'uz' %}active{% endif %}" href="{% url 'menu:complaint' %}?lang=uz">UZ</a><a class="{% if language == 'ru' %}active{% endif %}" href="{% url 'menu:complaint' %}?lang=ru">RU</a></div>
+      <button class="nav-more-button dark" type="button" data-nav-open aria-label="{{ t.open_menu }}" aria-expanded="false"><i></i><i></i><i></i></button>
+    </header>
+
+    <main>
+      {% if submitted %}
+      <section class="complaint-success">
+        <span class="success-mark">✓</span>
+        <p class="complaint-kicker">{{ t.page_title }}</p>
+        <h1>{{ t.success_title }}</h1>
+        <p>{{ t.success_text }}</p>
+        <div><a class="primary-button" href="{% url 'menu:home' %}?lang={{ language }}">{{ t.back }}</a><a class="secondary-button" href="{% url 'menu:complaint' %}?lang={{ language }}">{{ t.another }}</a></div>
+      </section>
+      {% else %}
+      <section class="complaint-intro">
+        <div><p class="complaint-kicker">{{ t.kicker }}</p><h1>{{ t.title }}</h1><p>{{ t.intro }}</p></div>
+        <aside><span>◌</span><div><b>{{ t.anonymous_title }}</b><p>{{ t.anonymous_text }}</p></div></aside>
+      </section>
+
+      <form class="complaint-form" method="post" id="complaint-form" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="lang" value="{{ language }}">
+        <input type="hidden" name="submission_token" value="{{ submission_token }}">
+        {% if form.non_field_errors %}<div class="complaint-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+        <fieldset>
+          <legend><span>01</span>{{ t.reason }} <small>{{ t.required }}</small></legend>
+          <div class="reason-grid">{% for choice in form.reason %}<label class="reason-card">{{ choice.tag }}<span><i></i>{{ choice.choice_label }}</span></label>{% endfor %}</div>
+          {{ form.reason.errors }}
+        </fieldset>
+
+        <fieldset>
+          <legend><span>02</span>{{ t.location }} <small>{{ t.optional }}</small></legend>
+          <p class="field-note">{{ t.location_note }}</p>
+          <div class="complaint-field-grid">
+            <label><span>{{ t.space }}</span>{{ form.space }}{{ form.space.errors }}</label>
+            <label><span>{{ t.place_details }}</span>{{ form.place_details }}{{ form.place_details.errors }}</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>03</span>{{ t.description }} <small>{{ t.required }}</small></legend>
+          <label class="description-field">{{ form.description }}{{ form.description.errors }}</label>
+        </fieldset>
+
+        <div class="complaint-submit"><p><span>◌</span>{{ t.privacy }}</p><button class="primary-button" type="submit" id="complaint-submit" data-sending="{{ t.sending }}">{{ t.submit }}</button></div>
+      </form>
+      {% endif %}
+    </main>
+  </div>
+  {% include 'partials/mobile_drawer.html' %}
+  <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
+  <script src="{% static 'js/complaint.js' %}?v=20260926-2" defer></script>
+</body>
+</html>

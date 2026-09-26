@@ -137,6 +137,7 @@ class Command(BaseCommand):
             restaurant.location_text_ru = "населённый пункт Туркыс, ул. Самарканд, 44"
             restaurant.location_url = "https://yandex.uz/maps/?text=%D0%BD%D0%B0%D1%81%D0%B5%D0%BB%D1%91%D0%BD%D0%BD%D1%8B%D0%B9%20%D0%BF%D1%83%D0%BD%D0%BA%D1%82%20%D0%A2%D1%83%D1%80%D0%BA%D1%8B%D1%81%2C%20%D1%83%D0%BB.%20%D0%A1%D0%B0%D0%BC%D0%B0%D1%80%D0%BA%D0%B0%D0%BD%D0%B4%2C%2044"
             restaurant.telegram_url = "https://t.me/bbaxttt"
+            restaurant.youtube_url = "https://www.youtube.com/"
             hero_source = demo_dir / "hero.webp"
             if hero_source.exists():
                 with hero_source.open("rb") as image_file:
@@ -146,14 +147,32 @@ class Command(BaseCommand):
         for day in range(7):
             WorkingHours.objects.get_or_create(day_of_week=day, defaults={"open_time": "11:00", "close_time": "23:00"})
 
-        DiningSpace.objects.get_or_create(
-            name="Основной зал",
-            defaults={"name_uz": "Asosiy zal", "description": "Просторный зал для семейных встреч и компаний.", "description_uz": "Oilaviy uchrashuvlar va katta davralar uchun keng zal.", "space_type": DiningSpace.SpaceType.HALL, "capacity_min": 1, "capacity_max": 60, "is_exclusive": False, "sort_order": 10},
+        space_configs = (
+            (("Asosiy zal", "Stol-stulli zal"), "Зал со столами и стульями", "Stol-stulli zal", "Удобный зал со столами и стульями для компании от 2 до 8 человек.", "2 dan 8 kishigacha bo‘lgan davra uchun stol-stulli qulay zal.", DiningSpace.SpaceType.HALL, 2, 8, False, 10),
+            (("Katta zal",), "Большой зал", "Katta zal", "Большой зал для компании от 8 до 18 человек.", "8 dan 18 kishigacha bo‘lgan katta davra uchun zal.", DiningSpace.SpaceType.HALL, 8, 18, False, 20),
+            (("Oilaviy xona", "Oddiy xona"), "Обычная комната", "Oddiy xona", "Небольшая отдельная комната для 1–2 гостей.", "1–2 mehmon uchun kichik va alohida xona.", DiningSpace.SpaceType.PRIVATE_ROOM, 1, 2, True, 30),
+            (("VIP xona", "Tapchan"), "Тапчан", "Tapchan", "Отдельный тапчан для компании от 6 до 20 человек.", "6 dan 20 kishigacha bo‘lgan davra uchun alohida tapchan.", DiningSpace.SpaceType.PRIVATE_ROOM, 6, 20, True, 40),
         )
-        DiningSpace.objects.get_or_create(
-            name="Семейная комната",
-            defaults={"name_uz": "Oilaviy xona", "description": "Отдельная уютная комната для небольшой компании.", "description_uz": "Kichik davra uchun alohida va shinam xona.", "space_type": DiningSpace.SpaceType.PRIVATE_ROOM, "capacity_min": 4, "capacity_max": 10, "is_exclusive": True, "sort_order": 20},
-        )
+        for aliases, name_ru, name_uz, description_ru, description_uz, space_type, capacity_min, capacity_max, exclusive, sort_order in space_configs:
+            space = DiningSpace.objects.filter(name_uz__in=aliases).order_by("pk").first()
+            if not space:
+                space = DiningSpace()
+            space.name = name_ru
+            space.name_uz = name_uz
+            space.description = description_ru
+            space.description_uz = description_uz
+            space.space_type = space_type
+            space.capacity_min = capacity_min
+            space.capacity_max = capacity_max
+            space.is_exclusive = exclusive
+            space.is_active = True
+            space.is_bookable = True
+            space.is_temporarily_unavailable = False
+            space.hide_when_unavailable = False
+            space.unavailable_reason = ""
+            space.unavailable_reason_uz = ""
+            space.sort_order = sort_order
+            space.save()
 
         for code, name_ru, name_uz, order in (
             ("REGULAR", "Обычный визит", "Oddiy tashrif", 10),
