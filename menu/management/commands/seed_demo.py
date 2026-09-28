@@ -18,14 +18,18 @@ CATEGORIES = [
 ]
 
 DISHES = [
-    ("beshbarmoq", "Beshbarmoq", "Бешбармак", "Mayin go‘sht, yupqa xamir va xushbo‘y sho‘rva uyg‘unligidagi an’anaviy taom.", "Традиционное блюдо с нежным мясом, тонким тестом и ароматным бульоном.", None),
+    ("beshbarmoq", "Beshbarmoq", "Бешбармак", "Mayin go‘sht, yupqa xamir va xushbo‘y sho‘rva uyg‘unligidagi an’anaviy taom.", "Традиционное блюдо с нежным мясом, тонким тестом и ароматным бульоном.", 90000),
     ("norin", "Norin — porsiya", "Нарын — порция", "Mayda kesilgan xamir va go‘shtdan tayyorlanadigan to‘yimli milliy taom.", "Сытное национальное блюдо из тонко нарезанного теста и мяса.", 50000),
+    ("norin", "Norin — 1 kg", "Нарын — 1 кг", "Katta davra uchun bir kilogramm to‘yimli norin.", "Один килограмм сытного нарына для большой компании.", 135000),
     ("norin", "Norin — 1 kg + 3 dona qazi", "Нарын — 1 кг + 3 казы", "Katta davra uchun norin va uch dona qazi bilan mo‘l to‘plam.", "Большой набор нарына с тремя казы — удобно для дружной компании.", 155000),
     ("shashliklar", "Qiyma shashlik", "Шашлык из фарша", "Mayin qiyma va ziravorlardan tayyorlanib, ochiq olovda pishiriladi.", "Сочный шашлык из нежного фарша со специями, приготовленный на открытом огне.", None),
     ("shashliklar", "Ot jaz shashlik", "Шашлык «От жаз»", "Ochiq olovda qizartirib pishiriladigan, to‘yimli va xushbo‘y shashlik.", "Сытный и ароматный шашлык, поджаренный на открытом огне.", None),
-    ("baliq", "Baliq (dona)", "Рыба (штука)", "Buyurtma uchun alohida tayyorlanadigan, tashqi qismi qarsildoq baliq.", "Рыба, приготовленная отдельно для заказа, с аппетитной хрустящей корочкой.", None),
-    ("baliq", "Baliq — 1 kg dan yuqori", "Рыба — свыше 1 кг", "Katta davra uchun 1 kg dan yuqori baliq, buyurtma asosida pishiriladi.", "Рыба весом свыше 1 кг для компании, готовится под заказ.", None),
-    ("baliq", "Baliq — 2 kg dan yuqori", "Рыба — свыше 2 кг", "Katta mehmonlar davrasi uchun 2 kg dan yuqori baliq.", "Рыба весом свыше 2 кг для большого стола и дружной компании.", None),
+    ("baliq", "Baliq (dona)", "Рыба (штука)", "Buyurtma uchun alohida tayyorlanadigan, tashqi qismi qarsildoq baliq.", "Рыба, приготовленная отдельно для заказа, с аппетитной хрустящей корочкой.", 85000),
+    ("baliq", "Baliq — 1 kg dan yuqori", "Рыба — свыше 1 кг", "Katta davra uchun 1 kg dan yuqori baliq, buyurtma asosida pishiriladi.", "Рыба весом свыше 1 кг для компании, готовится под заказ.", 110000),
+    ("baliq", "Baliq — 2 kg dan yuqori", "Рыба — свыше 2 кг", "Katta mehmonlar davrasi uchun 2 kg dan yuqori baliq.", "Рыба весом свыше 2 кг для большого стола и дружной компании.", 120000),
+    ("baliq", "Baliq — 3 kg dan yuqori", "Рыба — свыше 3 кг", "Katta tadbir va davralar uchun 3 kg dan yuqori baliq.", "Рыба весом свыше 3 кг для большого праздника или компании.", 130000),
+    ("baliq", "Baliq filesi — porsiya", "Филе рыбы — порция", "Suyaksiz baliq filesidan tayyorlanadigan qulay porsiya.", "Удобная порция нежного рыбного филе без костей.", 65000),
+    ("baliq", "Baliq filesi — 1 kg", "Филе рыбы — 1 кг", "Katta davra uchun bir kilogramm mayin baliq filesi.", "Один килограмм нежного рыбного филе для компании.", 130000),
     ("salatlar", "Svejiy", "Свежий", "Yangi mahsulotlardan tayyorlanadigan yengil va tetiklantiruvchi salat.", "Лёгкий и освежающий салат из свежих продуктов.", None),
     ("salatlar", "Achiq-chuchuk", "Ачичук", "Pomidor, piyoz va ziravorlar uyg‘unligidagi sharqona salat.", "Восточный салат с помидорами, луком и ароматными специями.", None),
     ("salatlar", "Morskoy kapriz", "Морской каприз", "Dengiz ta’mlarini yoqtiradiganlar uchun mayin va to‘yimli salat.", "Нежный и сытный салат для любителей морских вкусов.", None),
@@ -36,19 +40,42 @@ DISHES = [
     ("salatlar", "Sezar", "Цезарь", "Qarsildoq salat barglari va mayin sous uyg‘unligidagi mashhur salat.", "Популярный салат с хрустящими листьями и нежным соусом.", None),
     ("ichimliklar", "Choy", "Чай", "Dasturxonga issiq tortiladigan klassik xushbo‘y choy.", "Классический ароматный чай, который подаётся горячим.", None),
     ("ichimliklar", "Limonli choy", "Чай с лимоном", "Limonning yengil nordonligi bilan xushbo‘y issiq choy.", "Ароматный горячий чай с лёгкой лимонной кислинкой.", None),
-    ("ichimliklar", "Coca-Cola 1 L", "Coca-Cola 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", None),
-    ("ichimliklar", "Coca-Cola 1,5 L", "Coca-Cola 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", None),
-    ("ichimliklar", "Pepsi 1 L", "Pepsi 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", None),
-    ("ichimliklar", "Pepsi 1,5 L", "Pepsi 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", None),
-    ("ichimliklar", "Fanta 1 L", "Fanta 1 л", "Mevali ta’mga ega 1 litrlik gazli ichimlik.", "Газированный напиток с ярким фруктовым вкусом, 1 литр.", None),
-    ("ichimliklar", "Fanta 1,5 L", "Fanta 1,5 л", "Davra uchun mevali ta’mga ega 1,5 litrlik gazli ichimlik.", "Фруктовый газированный напиток объёмом 1,5 литра для компании.", None),
+    ("ichimliklar", "Coca-Cola 1 L", "Coca-Cola 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", 15000),
+    ("ichimliklar", "Coca-Cola 1,5 L", "Coca-Cola 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", 18000),
+    ("ichimliklar", "Pepsi 1 L", "Pepsi 1 л", "Davra uchun 1 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1 литр.", 15000),
+    ("ichimliklar", "Pepsi 1,5 L", "Pepsi 1,5 л", "Katta davra uchun 1,5 litrlik tetiklantiruvchi gazli ichimlik.", "Освежающий газированный напиток объёмом 1,5 литра для компании.", 18000),
+    ("ichimliklar", "Fanta 1 L", "Fanta 1 л", "Mevali ta’mga ega 1 litrlik gazli ichimlik.", "Газированный напиток с ярким фруктовым вкусом, 1 литр.", 15000),
+    ("ichimliklar", "Fanta 1,5 L", "Fanta 1,5 л", "Davra uchun mevali ta’mga ega 1,5 litrlik gazli ichimlik.", "Фруктовый газированный напиток объёмом 1,5 литра для компании.", 18000),
+    ("ichimliklar", "Sharbat", "Сок", "Mevali ta’mga ega tetiklantiruvchi sharbat.", "Освежающий фруктовый сок.", 18000),
+    ("ichimliklar", "Muzli ichimlik 1 L", "Холодный напиток 1 л", "Muzdek tortiladigan bir litrlik tetiklantiruvchi ichimlik.", "Освежающий холодный напиток объёмом 1 литр.", 15000),
     ("ichimliklar", "Gazsiz suv 1 L", "Вода без газа 1 л", "Kundalik ichish uchun toza gazsiz suv.", "Чистая негазированная вода для ежедневного питья.", None),
     ("ichimliklar", "Gazli suv 1 L", "Газированная вода 1 л", "Yengil va tetiklantiruvchi gazli suv.", "Лёгкая и освежающая газированная вода.", None),
-    ("ichimliklar", "Chortoq", "Чартак", "O‘ziga xos mineral ta’mga ega Chortoq suvi.", "Вода «Чартак» с характерным минеральным вкусом.", None),
-    ("ichimliklar", "Moxito", "Мохито", "Yalpiz va sitrus ohanglari uyg‘unligidagi tetiklantiruvchi ichimlik.", "Освежающий напиток с нотами мяты и цитруса.", None),
-    ("ichimliklar", "Moxito 1 L", "Мохито 1 л", "Davra uchun yalpiz va sitrus ta’mli 1 litrlik moxito.", "Литр освежающего мохито с мятой и цитрусом для компании.", None),
+    ("ichimliklar", "Chortoq 0,5 L", "Чартак 0,5 л", "O‘ziga xos mineral ta’mga ega Chortoq suvi.", "Вода «Чартак» с характерным минеральным вкусом.", 15000),
+    ("ichimliklar", "Moxito 0,5 L", "Мохито 0,5 л", "Yalpiz va sitrus ohanglari uyg‘unligidagi tetiklantiruvchi ichimlik.", "Освежающий напиток с нотами мяты и цитруса.", 25000),
+    ("ichimliklar", "Moxito 1 L", "Мохито 1 л", "Davra uchun yalpiz va sitrus ta’mli 1 litrlik moxito.", "Литр освежающего мохито с мятой и цитрусом для компании.", 40000),
     ("ichimliklar", "Kokteyl", "Коктейль", "Mayin ta’mli, tetiklantiruvchi sovuq kokteyl.", "Освежающий холодный коктейль с мягким вкусом.", None),
 ]
+
+DEFAULT_WEIGHTS = {
+    "Beshbarmoq": "1 porsiya",
+    "Norin — porsiya": "1 porsiya",
+    "Norin — 1 kg": "1 kg",
+    "Baliq — 1 kg dan yuqori": "1 kg dan yuqori",
+    "Baliq — 2 kg dan yuqori": "2 kg dan yuqori",
+    "Baliq — 3 kg dan yuqori": "3 kg dan yuqori",
+    "Baliq filesi — porsiya": "1 porsiya",
+    "Baliq filesi — 1 kg": "1 kg",
+    "Coca-Cola 1 L": "1 L",
+    "Coca-Cola 1,5 L": "1,5 L",
+    "Pepsi 1 L": "1 L",
+    "Pepsi 1,5 L": "1,5 L",
+    "Fanta 1 L": "1 L",
+    "Fanta 1,5 L": "1,5 L",
+    "Muzli ichimlik 1 L": "1 L",
+    "Chortoq 0,5 L": "0,5 L",
+    "Moxito 0,5 L": "0,5 L",
+    "Moxito 1 L": "1 L",
+}
 
 PROMOTIONS = []
 
@@ -67,7 +94,6 @@ class Command(BaseCommand):
             )
             categories[slug] = category
 
-        menu_dish_ids = []
         for order, item in enumerate(DISHES, start=1):
             slug, uz, ru, desc_uz, desc_ru, price = item
             dish, created = Dish.objects.get_or_create(
@@ -78,7 +104,7 @@ class Command(BaseCommand):
                     "description_uz": desc_uz,
                     "description_ru": desc_ru,
                     "price": price,
-                    "weight": "",
+                    "weight": DEFAULT_WEIGHTS.get(uz, ""),
                     "is_available": True,
                     "is_popular": False,
                     "is_recommended": False,
@@ -98,11 +124,7 @@ class Command(BaseCommand):
                     dish.description_ru = desc_ru
                     update_fields.append("description_ru")
                 dish.save(update_fields=update_fields)
-            menu_dish_ids.append(dish.pk)
-
-        # Keep the command idempotent while removing the previous demo menu.
-        Dish.objects.exclude(pk__in=menu_dish_ids).delete()
-        Category.objects.exclude(slug__in=categories).delete()
+        # Never remove restaurant-managed dishes or their uploaded photos.
 
         for title_uz, title_ru, description_uz, description_ru, badge_uz, badge_ru, filename, order in PROMOTIONS:
             promotion, _ = Promotion.objects.update_or_create(

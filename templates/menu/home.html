@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260926-6">
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}?v=20260928-1">
   <link rel="stylesheet" href="{% static 'css/site-nav.css' %}?v=20260926-1">
   <script src="{% static 'js/menu.js' %}?v=20260926-6" defer></script>
   <script src="{% static 'js/site-nav.js' %}?v=20260926-1" defer></script>
@@ -186,7 +186,7 @@
             <button class="card-open dish-trigger" type="button" data-dish-id="{{ dish.pk }}" aria-label="{{ dish.name_uz }}"></button>
             {% with cover=dish.images.first %}
             <div class="popular-image">
-              {% if cover %}<img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="420" height="300">{% else %}<div class="image-placeholder">✦</div>{% endif %}
+              {% if cover %}<img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="420" height="300">{% else %}<div class="default-dish-cover cover-{{ dish.category.slug }}"><span>{{ dish.category.icon|default:"✦" }}</span><small>Beshbarmak House</small></div>{% endif %}
               {% if dish.is_recommended %}<span class="photo-badge" data-i18n data-uz="Tavsiya" data-ru="Советуем">Tavsiya</span>{% endif %}
             </div>
             {% endwith %}
@@ -220,11 +220,10 @@
               {% for dish in dishes %}
                 {% if dish.category_id == category.id %}
                 {% with cover=dish.images.first %}
-                <article class="dish-card{% if not dish.is_available %} unavailable{% endif %}{% if not cover %} text-only{% endif %}" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
+                <article class="dish-card{% if not dish.is_available %} unavailable{% endif %}{% if not cover %} no-photo{% endif %}" data-dish-id="{{ dish.pk }}" data-category="{{ category.slug }}" data-search="{{ dish.name_uz }} {{ dish.name_ru }} {{ dish.description_uz }} {{ dish.description_ru }} {{ category.name_uz }} {{ category.name_ru }}">
                   <button class="card-open dish-trigger" type="button" data-dish-id="{{ dish.pk }}" aria-label="{{ dish.name_uz }}"></button>
-                  {% if cover %}
                   <div class="dish-image">
-                    <img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="360" height="280">
+                    {% if cover %}<img src="{{ cover.image.url }}" alt="{{ dish.name_uz }}" loading="lazy" width="360" height="280">{% else %}<div class="default-dish-cover cover-{{ category.slug }}"><span>{{ category.icon|default:"✦" }}</span><small data-i18n data-uz="Rasm tez orada" data-ru="Фото скоро">Rasm tez orada</small></div>{% endif %}
                     <div class="card-badges">
                       {% if dish.is_popular %}<span class="mini-badge hot">🔥</span>{% endif %}
                       {% if dish.is_recommended %}<span class="mini-badge recommended">★</span>{% endif %}
@@ -233,7 +232,6 @@
                       <span class="sold-out" data-i18n data-uz="Hozir mavjud emas" data-ru="Сейчас нет в наличии">Hozir mavjud emas</span>
                     {% endif %}
                   </div>
-                  {% endif %}
                   <div class="dish-copy">
                     <h3 data-i18n data-uz="{{ dish.name_uz }}" data-ru="{{ dish.name_ru }}">{{ dish.name_uz }}</h3>
                     {% if dish.description_uz or dish.description_ru %}<p data-i18n data-uz="{{ dish.description_uz }}" data-ru="{{ dish.description_ru }}">{{ dish.description_uz }}</p>{% endif %}

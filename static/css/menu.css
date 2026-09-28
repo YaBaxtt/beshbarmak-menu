@@ -451,6 +451,17 @@ img { display: block; max-width: 100%; }
 .image-placeholder { display: flex; width: 100%; height: 100%; align-items: center; flex-direction: column; justify-content: center; gap: 7px; color: #9c7a52; background: linear-gradient(145deg, #e7d8c4, #f6eddf); }
 .image-placeholder span, .image-placeholder:not(:has(small)) { font-family: "Playfair Display", serif; font-size: 30px; }
 .image-placeholder small { font-size: 9px; }
+.default-dish-cover { position:relative; display:flex; width:100%; height:100%; align-items:center; flex-direction:column; justify-content:center; gap:7px; overflow:hidden; color:#fff; background:linear-gradient(145deg,#8d4d35,#3f2418); }
+.default-dish-cover::before,.default-dish-cover::after { position:absolute; border:1px solid rgba(255,255,255,.16); border-radius:50%; content:""; }
+.default-dish-cover::before { width:94px; height:94px; top:-37px; right:-27px; }
+.default-dish-cover::after { width:62px; height:62px; bottom:-30px; left:-18px; }
+.default-dish-cover span { position:relative; z-index:1; display:grid; width:48px; height:48px; place-items:center; border:1px solid rgba(255,255,255,.25); border-radius:50%; background:rgba(255,255,255,.12); font-size:24px; backdrop-filter:blur(4px); }
+.default-dish-cover small { position:relative; z-index:1; color:rgba(255,255,255,.72); font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.default-dish-cover.cover-norin { background:linear-gradient(145deg,#a35a34,#52301c); }
+.default-dish-cover.cover-shashliklar { background:linear-gradient(145deg,#9a4932,#321a15); }
+.default-dish-cover.cover-baliq { background:linear-gradient(145deg,#3d7c7a,#244650); }
+.default-dish-cover.cover-salatlar { background:linear-gradient(145deg,#688550,#344b2b); }
+.default-dish-cover.cover-ichimliklar { background:linear-gradient(145deg,#b06a49,#63412f); }
 .card-badges { position: absolute; top: 8px; left: 8px; display: flex; gap: 5px; }
 .mini-badge { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 9px; color: #fff; background: rgba(37,24,16,.73); box-shadow: 0 3px 10px rgba(0,0,0,.1); backdrop-filter: blur(5px); font-size: 11px; }
 .mini-badge.recommended { color: #4b2b16; background: rgba(239,216,169,.9); }

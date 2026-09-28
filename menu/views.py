@@ -1,6 +1,7 @@
 import uuid
 
 from django.db.models import Avg, Count, Prefetch, Q
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -13,6 +14,7 @@ from reservations.models import Complaint, WorkingHours
 from .forms import ReviewForm
 from .i18n import COMPLAINT_TEXT, INFO_TEXT, WEEKDAYS, language_from_request
 from .models import Category, Dish, DishImage, DishLike, Promotion, RestaurantSettings, Review
+from .telegram_notifications import notify_new_complaint_in_background, notify_new_review_in_background
 
 
 def _remember_language(request, response, language):
@@ -127,7 +129,7 @@ def submit_review(request):
         review = form.save(commit=False)
         review.submission_token = submission_token
         review.language = language
-        Review.objects.get_or_create(
+        saved_review, created = Review.objects.get_or_create(
             submission_token=submission_token,
             defaults={
                 "guest_name": review.guest_name,
@@ -136,6 +138,8 @@ def submit_review(request):
                 "language": review.language,
             },
         )
+        if created:
+            transaction.on_commit(lambda: notify_new_review_in_background(saved_review.pk))
         response = redirect(f"{reverse('menu:home')}?lang={language}&review=sent#reviews")
         return _remember_language(request, response, language)
 
@@ -174,7 +178,7 @@ def complaint(request):
     form = ComplaintForm(request.POST or None, language=language)
     if request.method == "POST" and form.is_valid():
         data = form.cleaned_data
-        Complaint.objects.get_or_create(
+        complaint, created = Complaint.objects.get_or_create(
             submission_token=submission_token,
             defaults={
                 "reason": data["reason"],
@@ -183,6 +187,8 @@ def complaint(request):
                 "description": data["description"],
             },
         )
+        if created:
+            transaction.on_commit(lambda: notify_new_complaint_in_background(complaint.pk))
         response = redirect(f"{reverse('menu:complaint')}?lang={language}&sent=1")
         return _remember_language(request, response, language)
 

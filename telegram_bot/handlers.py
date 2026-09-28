@@ -14,6 +14,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
+from menu.models import RestaurantSettings, Review
 from reservations.models import Complaint, DiningSpace, Reservation, ReservationAction, ReservationOccasion, SiteVisitDaily, StaffProfile
 from reservations.services import AlreadyProcessedError, AvailabilityError, ReservationService
 from telegram_bot.reports import REPORT_LIMIT, build_reservation_report
@@ -97,6 +98,14 @@ def back_keyboard(profile=None):
     return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="← Bosh menyu", callback_data="home")]])
 
 
+def guest_keyboard():
+    base_url = settings.SITE_URL.rstrip("/")
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📖 Menyuni ko‘rish", url=f"{base_url}/?lang=uz#dishes")],
+        [InlineKeyboardButton(text="📅 Stol band qilish", url=f"{base_url}/reservation/?lang=uz")],
+    ])
+
+
 @sync_to_async(thread_sensitive=True)
 def authorized_profile(telegram_id):
     profile = StaffProfile.objects.select_related("user").filter(
@@ -158,6 +167,11 @@ def new_complaints_count():
     return Complaint.objects.filter(status=Complaint.Status.NEW).count()
 
 
+@sync_to_async(thread_sensitive=True)
+def public_restaurant_name():
+    return RestaurantSettings.load().restaurant_name
+
+
 def _occasion_labels(items):
     codes = {item.occasion for item in items if item.occasion}
     labels = dict(ReservationOccasion.objects.filter(code__in=codes).values_list("code", "name_uz"))
@@ -191,10 +205,58 @@ def action_keyboard(pk):
 
 @router.message(CommandStart())
 async def start(message: Message):
-    profile = await require_profile(message)
+    profile = await authorized_profile(message.from_user.id)
     if profile:
         complaint_count = await new_complaints_count()
         await message.answer("🍽 <b>Beshbarmak boshqaruvi</b>\n\nKerakli bo‘limni tanlang:", parse_mode="HTML", reply_markup=main_keyboard(profile, complaint_count))
+        return
+
+    restaurant_name = await public_restaurant_name()
+    await message.answer(
+        f"🍽 <b>{html.escape(restaurant_name)}</b>\n\n"
+        "Bu bot restoran administratorlari uchun boshqaruv paneli. "
+        "Mehmonlar menyuni ko‘rishi yoki stol band qilishi mumkin:",
+        parse_mode="HTML",
+        reply_markup=guest_keyboard(),
+    )
+
+
+@sync_to_async(thread_sensitive=True)
+def moderate_review(pk, publish):
+    review = Review.objects.get(pk=pk)
+    review.is_published = publish
+    review.admin_note = "Telegram orqali tasdiqlandi" if publish else "Telegram orqali yashirildi"
+    review.save(update_fields=("is_published", "admin_note"))
+    return review
+
+
+def moderated_review_text(review):
+    guest = review.guest_name or "Anonim mehmon"
+    state = "✅ Saytda ko‘rsatiladi" if review.is_published else "⛔ Saytdan yashirildi"
+    return (
+        f"⭐ <b>Mehmon fikri · {state}</b>\n\n"
+        f"👤 {html.escape(guest)}\n"
+        f"⭐ {'★' * review.rating}{'☆' * (5 - review.rating)}\n\n"
+        f"💬 {html.escape(review.text)}"
+    )
+
+
+@router.callback_query(F.data.startswith("review_publish:"))
+async def review_publish(callback: CallbackQuery):
+    if not await require_profile(callback):
+        return
+    review = await moderate_review(int(callback.data.split(":")[1]), True)
+    await callback.message.edit_text(moderated_review_text(review), parse_mode="HTML", reply_markup=back_keyboard())
+    await callback.answer("Fikr saytda ko‘rsatiladi")
+
+
+@router.callback_query(F.data.startswith("review_hide:"))
+async def review_hide(callback: CallbackQuery):
+    if not await require_profile(callback):
+        return
+    review = await moderate_review(int(callback.data.split(":")[1]), False)
+    await callback.message.edit_text(moderated_review_text(review), parse_mode="HTML", reply_markup=back_keyboard())
+    await callback.answer("Fikr yashirildi")
 
 
 @router.callback_query(F.data == "home")

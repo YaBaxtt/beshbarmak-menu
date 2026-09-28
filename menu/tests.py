@@ -1,5 +1,6 @@
 import tempfile
 import uuid
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -42,15 +43,22 @@ class MenuTests(TestCase):
         self.assertContains(response, "50 000")
         self.assertNotContains(response, "complaint-entry")
         self.assertNotContains(response, "available-status")
+        self.assertContains(response, "default-dish-cover")
 
-    def test_catalog_matches_the_supplied_menu_without_fake_prices_or_photos(self):
+    def test_catalog_matches_the_supplied_menu_with_requested_prices(self):
         self.assertEqual(Category.objects.count(), 6)
-        self.assertEqual(Dish.objects.count(), 30)
+        self.assertEqual(Dish.objects.count(), 36)
         self.assertEqual(Dish.objects.filter(category__slug="salatlar").count(), 8)
-        self.assertEqual(Dish.objects.filter(category__slug="ichimliklar").count(), 14)
+        self.assertEqual(Dish.objects.filter(category__slug="ichimliklar").count(), 16)
+        self.assertEqual(Dish.objects.filter(category__slug="baliq").count(), 6)
+        self.assertEqual(Dish.objects.get(name_uz="Beshbarmoq").price, 90000)
         self.assertEqual(Dish.objects.get(name_uz="Norin — porsiya").price, 50000)
+        self.assertEqual(Dish.objects.get(name_uz="Norin — 1 kg").price, 135000)
         self.assertEqual(Dish.objects.get(name_uz="Norin — 1 kg + 3 dona qazi").price, 155000)
-        self.assertIsNone(Dish.objects.get(name_uz="Beshbarmoq").price)
+        self.assertEqual(Dish.objects.get(name_uz="Baliq filesi — porsiya").price, 65000)
+        self.assertEqual(Dish.objects.get(name_uz="Baliq filesi — 1 kg").price, 130000)
+        self.assertEqual(Dish.objects.get(name_uz="Chortoq 0,5 L").price, 15000)
+        self.assertEqual(Dish.objects.get(name_uz="Moxito 1 L").price, 40000)
         self.assertFalse(Dish.objects.exclude(images=None).exists())
         self.assertFalse(Dish.objects.filter(description_uz="").exists())
         self.assertFalse(Dish.objects.filter(description_ru="").exists())
@@ -101,8 +109,10 @@ class MenuTests(TestCase):
             "rating": 5,
             "text": "Taom juda mazali, xizmat ham yaxshi bo‘ldi.",
         }
-        first = self.client.post(reverse("menu:submit-review"), payload)
-        second = self.client.post(reverse("menu:submit-review"), payload)
+        with patch("menu.views.notify_new_review_in_background") as notify, self.captureOnCommitCallbacks(execute=True):
+            first = self.client.post(reverse("menu:submit-review"), payload)
+            second = self.client.post(reverse("menu:submit-review"), payload)
+        notify.assert_called_once()
         self.assertRedirects(first, f"{reverse('menu:home')}?lang=uz&review=sent#reviews", fetch_redirect_response=False)
         self.assertEqual(second.status_code, 302)
         self.assertEqual(Review.objects.filter(submission_token=token).count(), 1)
@@ -156,8 +166,10 @@ class MenuTests(TestCase):
             "place_details": "4-tapchan",
             "description": "Taom sovuq holda olib kelindi.",
         }
-        first = self.client.post(reverse("menu:complaint"), payload)
-        second = self.client.post(reverse("menu:complaint"), payload)
+        with patch("menu.views.notify_new_complaint_in_background") as notify, self.captureOnCommitCallbacks(execute=True):
+            first = self.client.post(reverse("menu:complaint"), payload)
+            second = self.client.post(reverse("menu:complaint"), payload)
+        notify.assert_called_once()
         self.assertRedirects(first, f"{reverse('menu:complaint')}?lang=uz&sent=1", fetch_redirect_response=False)
         self.assertEqual(second.status_code, 302)
         self.assertEqual(Complaint.objects.filter(submission_token=token).count(), 1)
@@ -179,6 +191,14 @@ class MenuTests(TestCase):
         RestaurantSettings.load()
         RestaurantSettings.load()
         self.assertEqual(RestaurantSettings.objects.count(), 1)
+
+    @override_settings(SITE_URL="https://beshbarmak.example")
+    def test_telegram_guest_keyboard_links_to_menu_and_reservation(self):
+        from telegram_bot.handlers import guest_keyboard
+
+        keyboard = guest_keyboard()
+        self.assertEqual(keyboard.inline_keyboard[0][0].url, "https://beshbarmak.example/?lang=uz#dishes")
+        self.assertEqual(keyboard.inline_keyboard[1][0].url, "https://beshbarmak.example/reservation/?lang=uz")
 
     def test_admin_redirects_anonymous_users_to_login(self):
         response = self.client.get("/admin/")
